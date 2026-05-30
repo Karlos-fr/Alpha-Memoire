@@ -119,18 +119,18 @@
 
 ## Phase 10 - Enregistrement des séances
 
-- [ ] Créer un identifiant unique pour chaque séance.
-- [ ] Enregistrer la date de début de séance.
-- [ ] Enregistrer la date de fin de séance.
-- [ ] Enregistrer la durée de séance.
-- [ ] Enregistrer chaque exercice réalisé.
-- [ ] Enregistrer la lettre demandée pour chaque exercice.
-- [ ] Enregistrer le type d'exercice.
-- [ ] Enregistrer le nombre d'essais.
-- [ ] Enregistrer si une aide a été utilisée.
-- [ ] Enregistrer si la réponse finale est réussie.
-- [ ] Ajouter la séance terminée à l'historique.
-- [ ] Sauvegarder automatiquement après la fin de séance.
+- [x] Créer un identifiant unique pour chaque séance.
+- [x] Enregistrer la date de début de séance.
+- [x] Enregistrer la date de fin de séance.
+- [x] Enregistrer la durée de séance.
+- [x] Enregistrer chaque exercice réalisé.
+- [x] Enregistrer la lettre demandée pour chaque exercice.
+- [x] Enregistrer le type d'exercice.
+- [x] Enregistrer le nombre d'essais.
+- [x] Enregistrer si une aide a été utilisée.
+- [x] Enregistrer si la réponse finale est réussie.
+- [x] Ajouter la séance terminée à l'historique.
+- [x] Sauvegarder automatiquement après la fin de séance.
 
 ## Phase 11 - Tableau de bord parent
 

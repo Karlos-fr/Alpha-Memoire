@@ -98,6 +98,7 @@ const DEBUG_EXERCISE_LABELS: Record<ExerciseType, string> = {
 function App() {
   const hasTriedAutoSpeech = useRef(false)
   const sessionStartedAt = useRef<string | null>(null)
+  const exerciseStartedAt = useRef<string | null>(null)
   const welcomeInstruction = `Bonjour ${CHILD_NAME}. Prêt pour la mission des lettres ?`
   const speech = useSpeech({
     defaultText: welcomeInstruction,
@@ -145,6 +146,7 @@ function App() {
     const nextPlan = generateSessionPlan(storedProgress)
 
     sessionStartedAt.current = new Date().toISOString()
+    exerciseStartedAt.current = sessionStartedAt.current
     setProgress(storedProgress)
     setSessionPlan(nextPlan)
     setCurrentExerciseIndex(0)
@@ -165,6 +167,7 @@ function App() {
     const nextPlan = createDebugSessionPlan(type)
 
     sessionStartedAt.current = new Date().toISOString()
+    exerciseStartedAt.current = sessionStartedAt.current
     setProgress(storedProgress)
     setSessionPlan(nextPlan)
     setCurrentExerciseIndex(0)
@@ -269,7 +272,7 @@ function App() {
       attempts: attemptCount,
       helped: usedHelp,
       parentValidated,
-      startedAt: sessionStartedAt.current ?? sessionPlan.createdAt,
+      startedAt: exerciseStartedAt.current ?? sessionStartedAt.current ?? sessionPlan.createdAt,
       completedAt,
     }
     const nextResults = [...results, result]
@@ -294,6 +297,7 @@ function App() {
       setAttempts(0)
       setHelped(false)
       setFeedback('idle')
+      exerciseStartedAt.current = new Date().toISOString()
       speech.speak(sessionPlan.exercises[nextIndex].prompt)
     }, shouldPraise ? PRAISE_TRANSITION_MS : QUICK_TRANSITION_MS)
   }
