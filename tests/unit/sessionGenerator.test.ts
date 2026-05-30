@@ -97,7 +97,6 @@ describe('sessionGenerator', () => {
 
     expect(plan.exercises.length).toBeGreaterThanOrEqual(8)
     expect(plan.exercises.length).toBeLessThanOrEqual(10)
-    expect(plan.exercises.length).toBeLessThanOrEqual(12)
     expect(plan.letters.length).toBeGreaterThanOrEqual(3)
     expect(plan.letters.length).toBeLessThanOrEqual(5)
     expect(plan.letters.every((letter) => ['N', 'A', 'T', 'H'].includes(letter))).toBe(true)
@@ -190,21 +189,54 @@ describe('sessionGenerator', () => {
 
     expect(plan.introducedLetters.length).toBe(1)
     expect(baseProgress.activeLetters).not.toContain(plan.introducedLetters[0])
+    expect(plan.exercises.length).toBeGreaterThan(10)
+    expect(plan.letters.every((letter) =>
+      plan.exercises.some((exercise) => exercise.letter === letter),
+    )).toBe(true)
+  })
+
+  it('covers every acquired or learning letter without a hard session cap', () => {
+    const baseProgress = createInitialProgress(NOW)
+    const progress = ['N', 'A', 'T', 'H', 'B', 'C', 'D', 'E'].reduce(
+      (currentProgress, letter) =>
+        withLetter(currentProgress, letter, {
+          status: letter === 'N' || letter === 'A' ? 'known' : 'learning',
+          seenCount: 2,
+          successWithoutHelpCount: letter === 'N' || letter === 'A' ? 4 : 1,
+          currentStreak: letter === 'N' || letter === 'A' ? 4 : 1,
+          knownSessionCount: letter === 'N' || letter === 'A' ? 2 : 0,
+        }),
+      baseProgress,
+    )
+    const plan = generateSessionPlan(progress, {
+      now: NOW,
+      random: stableRandom,
+    })
+
+    expect(plan.letters).toEqual(expect.arrayContaining(['N', 'A', 'T', 'H', 'B', 'C', 'D', 'E']))
+    expect(plan.exercises.length).toBeGreaterThan(14)
+    expect(plan.letters.every((letter) =>
+      plan.exercises.some((exercise) => exercise.letter === letter),
+    )).toBe(true)
   })
 
   it('uses association prompts with the letter card audio text', () => {
     const baseProgress = createInitialProgress(NOW)
-    const progress = withLetter(baseProgress, 'N', {
-      status: 'learning',
-      seenCount: 1,
-    })
+    const progress = baseProgress.activeLetters.reduce(
+      (currentProgress, letter) =>
+        withLetter(currentProgress, letter, {
+          status: 'learning',
+          seenCount: 1,
+        }),
+      baseProgress,
+    )
     const plan = generateSessionPlan(progress, {
       now: NOW,
       random: stableRandom,
     })
     const association = plan.exercises.find((exercise) => exercise.type === 'association')
 
-    expect(association?.prompt).toBe('N comme Nathan')
+    expect(association?.prompt).toMatch(/^[A-Z] comme /)
   })
 
   it('uses recent session history to increase a helped letter frequency', () => {

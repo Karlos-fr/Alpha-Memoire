@@ -64,8 +64,8 @@
 
 - [x] Créer une fonction `generateSessionPlan`.
 - [x] Lire la progression actuelle avant de générer la séance.
-- [x] Générer 8 à 10 exercices par séance.
-- [x] Limiter la séance à 12 exercices maximum.
+- [x] Générer 8 à 10 exercices au départ, puis allonger la séance pour couvrir toutes les lettres acquises ou en acquisition.
+- [x] Ne pas appliquer de limite dure à la durée des séances.
 - [x] Utiliser 3 à 5 lettres différentes au départ.
 - [x] Démarrer par 1 ou 2 exercices faciles.
 - [x] Prioriser les lettres fragiles.
@@ -189,7 +189,7 @@
 ## Priorité de la V1
 
 - [ ] Application React utilisable sur navigateur PC et mobile.
-- [ ] Séances de 8 à 10 exercices.
+- [ ] Séances adaptatives sans limite dure, couvrant toutes les lettres acquises ou en acquisition.
 - [ ] Groupe initial `N`, `A`, `T`, `H`.
 - [ ] Reconnaissance des lettres.
 - [ ] Nomination avec validation parentale.

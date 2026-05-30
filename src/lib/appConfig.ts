@@ -23,7 +23,6 @@ export const INITIAL_ACTIVE_LETTERS = INITIAL_LETTER_ORDER
 export const SESSION_EXERCISE_COUNT = {
   targetMin: 8,
   targetMax: 10,
-  hardMax: 12,
 } as const
 
 /**

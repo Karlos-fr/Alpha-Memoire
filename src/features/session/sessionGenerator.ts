@@ -79,27 +79,32 @@ function selectActiveLetters(
 ): LetterSymbol[] {
   const groups = groupLetters(progress)
   const selectedLetters: LetterSymbol[] = []
-  const activeLearningLetters = [...groups.fragile, ...groups.learning].filter((letterProgress) =>
-    progress.activeLetters.includes(letterProgress.letter),
+  const requiredLetters = getRequiredSessionLetters(progress)
+  const requiredLearningLetters = requiredLetters.filter(
+    (letterProgress) => letterProgress.status !== 'known',
   )
-  const knownReviewLetters = groups.known.filter((letterProgress) =>
-    progress.activeLetters.includes(letterProgress.letter),
+  const requiredKnownLetters = requiredLetters.filter(
+    (letterProgress) => letterProgress.status === 'known',
   )
 
-  addLetters(selectedLetters, context.recentProblemLetters, 3)
-  addLetters(selectedLetters, sortByPriority(groups.fragile), 3)
-  addLetters(selectedLetters, shuffle(activeLearningLetters, random), 4)
-  addLetters(selectedLetters, context.dueReviewLetters, 5)
-  addLetters(selectedLetters, getKnownLettersToReview(knownReviewLetters), 1)
+  addLetters(selectedLetters, context.recentProblemLetters, Number.POSITIVE_INFINITY)
+  addLetters(selectedLetters, sortByPriority(groups.fragile), Number.POSITIVE_INFINITY)
+  addLetters(selectedLetters, shuffle(requiredLearningLetters, random), Number.POSITIVE_INFINITY)
+  addLetters(selectedLetters, context.dueReviewLetters, Number.POSITIVE_INFINITY)
+  addLetters(
+    selectedLetters,
+    getKnownLettersToReview(requiredKnownLetters),
+    Number.POSITIVE_INFINITY,
+  )
 
-  if (canIntroduceNewLetter(progress, groups, selectedLetters)) {
+  if (canIntroduceNewLetter(progress, groups)) {
     addLetters(selectedLetters, groups.newLetters, selectedLetters.length + 1)
   }
 
-  addLetters(selectedLetters, shuffle(activeLearningLetters, random), 5)
-  addLetters(selectedLetters, getFallbackLetters(progress), 3)
+  addLetters(selectedLetters, shuffle(requiredLetters, random), Number.POSITIVE_INFINITY)
+  addLetters(selectedLetters, getFallbackLetters(progress), Number.POSITIVE_INFINITY)
 
-  return selectedLetters.slice(0, 5)
+  return selectedLetters
 }
 
 /**
@@ -111,7 +116,7 @@ function buildExercises(
   random: () => number,
   context: SessionAdaptationContext,
 ): PlannedExercise[] {
-  const targetCount = getTargetExerciseCount(random)
+  const targetCount = getTargetExerciseCount(random, letters.length)
   const exercises: PlannedExercise[] = []
   const easyLetters = getEasyStartLetters(progress, letters)
   const weightedLetters = getWeightedLetters(progress, letters, context)
@@ -120,13 +125,22 @@ function buildExercises(
     exercises.push(createPlannedExercise(index, 'recognition', letter, letters, random))
   })
 
+  letters
+    .filter((letter) => !exercises.some((exercise) => exercise.letter === letter))
+    .forEach((letter) => {
+      if (exercises.length < targetCount) {
+        const type = getExerciseType(progress.letters[letter], exercises.length, context)
+        exercises.push(createPlannedExercise(exercises.length, type, letter, letters, random))
+      }
+    })
+
   while (exercises.length < targetCount) {
     const letter = weightedLetters[exercises.length % weightedLetters.length]
     const type = getExerciseType(progress.letters[letter], exercises.length, context)
     exercises.push(createPlannedExercise(exercises.length, type, letter, letters, random))
   }
 
-  return exercises.slice(0, SESSION_EXERCISE_COUNT.hardMax)
+  return exercises
 }
 
 /**
@@ -167,6 +181,21 @@ function groupLetters(progress: AppProgress): LetterGroups {
 }
 
 /**
+ * Renvoie toutes les lettres a couvrir : groupe actif initial, lettres connues,
+ * lettres fragiles et lettres deja entrees en apprentissage.
+ */
+function getRequiredSessionLetters(progress: AppProgress) {
+  return Object.values(progress.letters).filter((letterProgress) => {
+    return (
+      progress.activeLetters.includes(letterProgress.letter) ||
+      letterProgress.status === 'learning' ||
+      letterProgress.status === 'fragile' ||
+      letterProgress.status === 'known'
+    )
+  })
+}
+
+/**
  * Filtre les lettres selon un statut exact.
  */
 function filterByStatus(letters: LetterProgress[], status: LetterStatus) {
@@ -179,7 +208,6 @@ function filterByStatus(letters: LetterProgress[], status: LetterStatus) {
 function canIntroduceNewLetter(
   progress: AppProgress,
   groups: LetterGroups,
-  selectedLetters: LetterSymbol[],
 ) {
   const unstableActiveLetterCount = progress.activeLetters.filter((letter) => {
     return progress.letters[letter]?.status !== 'known'
@@ -188,7 +216,6 @@ function canIntroduceNewLetter(
   return (
     groups.fragile.length === 0 &&
     (unstableActiveLetterCount <= 1 || hasRecentCleanSessions(progress, 3)) &&
-    selectedLetters.length < 5 &&
     groups.newLetters.length > 0
   )
 }
@@ -453,9 +480,12 @@ function getDifficultyScore(progress: LetterProgress | undefined) {
 /**
  * Tire un nombre cible d'exercices entre les bornes prévues.
  */
-function getTargetExerciseCount(random: () => number) {
+function getTargetExerciseCount(random: () => number, letterCount: number) {
   const range = SESSION_EXERCISE_COUNT.targetMax - SESSION_EXERCISE_COUNT.targetMin + 1
-  return SESSION_EXERCISE_COUNT.targetMin + Math.floor(random() * range)
+  const baseCount = SESSION_EXERCISE_COUNT.targetMin + Math.floor(random() * range)
+  const extraCoverageCount = Math.max(0, letterCount - 4) * 2
+
+  return Math.max(letterCount, baseCount + extraCoverageCount)
 }
 
 /**
