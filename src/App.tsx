@@ -40,6 +40,11 @@ type AppView = 'home' | 'session' | 'complete'
 type FeedbackState = 'idle' | 'success' | 'help'
 
 /**
+ * État visuel du compagnon de mission.
+ */
+type CompanionMood = 'ready' | 'listening' | 'helping' | 'celebrating'
+
+/**
  * Résultat pédagogique appliqué à la progression.
  */
 type ProgressOutcome = 'exposure' | 'successWithoutHelp' | 'successWithHelp' | 'error'
@@ -308,11 +313,17 @@ function App() {
   }
 
   if (view === 'session' && currentExercise) {
+    const companionMood =
+      feedback === 'help' ? 'helping' : feedback === 'success' ? 'celebrating' : 'listening'
+
     return (
       <main className="app-shell session-shell">
         <section className="session-view" aria-labelledby="exercise-title">
           <header className="session-header">
-            <p className="eyebrow">Mission lettres</p>
+            <div className="mission-brand">
+              <MissionCompanion mood={companionMood} />
+              <p className="eyebrow">Mission lettres</p>
+            </div>
             <p className="session-count">
               {completedCount + 1} / {totalCount}
             </p>
@@ -343,6 +354,7 @@ function App() {
     return (
       <main className="app-shell">
         <section className="complete-view" aria-labelledby="complete-title">
+          <MissionCompanion mood="celebrating" />
           <p className="eyebrow">Mission terminée</p>
           <h1 id="complete-title">Bravo {CHILD_NAME}</h1>
           <p className="intro">Tu as travaillé les lettres avec beaucoup d'attention.</p>
@@ -363,7 +375,10 @@ function App() {
     <main className="app-shell">
       <section className="hero" aria-labelledby="app-title">
         <div className="mission-panel">
-          <p className="eyebrow">Mission lettres</p>
+          <div className="mission-brand">
+            <MissionCompanion mood="ready" />
+            <p className="eyebrow">Mission lettres</p>
+          </div>
           <h1 id="app-title">Alpha-Mémoire</h1>
           <p className="intro">
             Un espace doux pour aider {CHILD_NAME} à reconnaître les lettres, les
@@ -484,6 +499,25 @@ function App() {
       </div>
     )
   }
+}
+
+/**
+ * Petit compagnon droïde original pour l'univers mission-espace.
+ */
+function MissionCompanion({ mood }: { mood: CompanionMood }) {
+  return (
+    <div className={`mission-companion ${mood}`} aria-hidden="true">
+      <div className="companion-antenna" />
+      <div className="companion-head">
+        <span className="companion-eye" />
+        <span className="companion-eye" />
+      </div>
+      <div className="companion-body">
+        <span />
+        <span />
+      </div>
+    </div>
+  )
 }
 
 export default App

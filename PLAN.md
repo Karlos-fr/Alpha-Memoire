@@ -108,14 +108,14 @@
 
 ## Phase 9 - Univers visuel
 
-- [ ] Créer une direction visuelle espace et mission.
-- [ ] Ajouter un compagnon visuel type petit droïde original.
-- [ ] Éviter toute reprise directe de Star Wars : noms, logos, personnages, musiques.
-- [ ] Définir une palette douce, contrastée et lisible.
-- [ ] Adapter les tailles pour mobile et PC.
-- [ ] Ajouter des états visuels pour réponse correcte, aide et transition.
-- [ ] Vérifier que tous les boutons restent facilement cliquables sur mobile.
-- [ ] Vérifier que le texte ne déborde pas dans les boutons.
+- [x] Créer une direction visuelle espace et mission.
+- [x] Ajouter un compagnon visuel type petit droïde original.
+- [x] Éviter toute reprise directe de Star Wars : noms, logos, personnages, musiques.
+- [x] Définir une palette douce, contrastée et lisible.
+- [x] Adapter les tailles pour mobile et PC.
+- [x] Ajouter des états visuels pour réponse correcte, aide et transition.
+- [x] Vérifier que tous les boutons restent facilement cliquables sur mobile.
+- [x] Vérifier que le texte ne déborde pas dans les boutons.
 
 ## Phase 10 - Enregistrement des séances
 
