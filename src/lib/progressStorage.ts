@@ -29,6 +29,7 @@ export function createInitialLetterProgress(letter: LetterSymbol): LetterProgres
     successWithHelpCount: 0,
     currentStreak: 0,
     knownSessionCount: 0,
+    successfulSessionIds: [],
     firstSeenAt: null,
     lastSeenAt: null,
     lastSuccessAt: null,

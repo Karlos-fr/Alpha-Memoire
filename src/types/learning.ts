@@ -53,6 +53,7 @@ export interface LetterProgress {
   successWithHelpCount: number
   currentStreak: number
   knownSessionCount: number
+  successfulSessionIds: string[]
   firstSeenAt: string | null
   lastSeenAt: string | null
   lastSuccessAt: string | null

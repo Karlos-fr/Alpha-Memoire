@@ -49,16 +49,16 @@
 
 ## Phase 5 - Moteur de progression
 
-- [ ] Créer une fonction qui met à jour une lettre après une bonne réponse sans aide.
-- [ ] Créer une fonction qui met à jour une lettre après une bonne réponse avec aide.
-- [ ] Créer une fonction qui met à jour une lettre après une erreur.
-- [ ] Incrémenter les réussites, erreurs, aides et séries de réussites.
-- [ ] Mettre à jour les dates de dernière apparition et dernière réussite.
-- [ ] Passer une lettre en `learning` lorsqu'elle a été vue.
-- [ ] Passer une lettre en `fragile` après des erreurs ou aides répétées.
-- [ ] Passer une lettre en `known` seulement après plusieurs réussites sur plusieurs séances.
-- [ ] Éviter qu'une seule bonne séance rende une lettre définitivement connue.
-- [ ] Ajouter des tests manuels ou unitaires simples sur ces règles.
+- [x] Créer une fonction qui met à jour une lettre après une bonne réponse sans aide.
+- [x] Créer une fonction qui met à jour une lettre après une bonne réponse avec aide.
+- [x] Créer une fonction qui met à jour une lettre après une erreur.
+- [x] Incrémenter les réussites, erreurs, aides et séries de réussites.
+- [x] Mettre à jour les dates de dernière apparition et dernière réussite.
+- [x] Passer une lettre en `learning` lorsqu'elle a été vue.
+- [x] Passer une lettre en `fragile` après des erreurs ou aides répétées.
+- [x] Passer une lettre en `known` seulement après plusieurs réussites sur plusieurs séances.
+- [x] Éviter qu'une seule bonne séance rende une lettre définitivement connue.
+- [x] Ajouter des tests manuels ou unitaires simples sur ces règles.
 
 ## Phase 6 - Générateur de séance
 

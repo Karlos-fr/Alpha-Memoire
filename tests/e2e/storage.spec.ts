@@ -2,11 +2,11 @@
  * Tests navigateur du stockage local.
  *
  * Vérifie que la progression est créée au premier chargement et conservée
- * après rechargement de page.
+ * après une nouvelle navigation.
  */
 
 import { expect, test } from '@playwright/test'
-import { PROGRESS_STORAGE_KEY } from '../src/lib/appConfig'
+import { PROGRESS_STORAGE_KEY } from '../../src/lib/appConfig'
 
 /**
  * Valide l'initialisation automatique et la persistance de la progression.
