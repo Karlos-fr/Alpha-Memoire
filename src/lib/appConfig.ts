@@ -5,6 +5,8 @@
  * sont regroupées ici pour éviter les constantes dispersées.
  */
 
+import { INITIAL_LETTER_ORDER } from '../data/letters'
+
 /**
  * Prénom utilisé dans les consignes et encouragements.
  */
@@ -13,7 +15,7 @@ export const CHILD_NAME = 'Nathan'
 /**
  * Premier groupe de lettres travaillé au démarrage de la V1.
  */
-export const INITIAL_ACTIVE_LETTERS = ['N', 'A', 'T', 'H'] as const
+export const INITIAL_ACTIVE_LETTERS = INITIAL_LETTER_ORDER
 
 /**
  * Nombre d'exercices attendus pour une séance courte.

@@ -32,6 +32,7 @@ export interface LetterCard {
   letter: LetterSymbol
   word: string
   audioText: string
+  temporaryVisual: string
   image: {
     src: string
     alt: string

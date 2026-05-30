@@ -6,6 +6,7 @@
  */
 
 import './App.css'
+import { INITIAL_LETTER_CARDS } from './data/letters'
 import { CHILD_NAME, INITIAL_ACTIVE_LETTERS } from './lib/appConfig'
 
 /**
@@ -32,9 +33,16 @@ function App() {
           </div>
         </div>
 
-        <div className="letter-preview" aria-label="Premier groupe de lettres">
-          {INITIAL_ACTIVE_LETTERS.map((letter) => (
-            <span key={letter}>{letter}</span>
+        <div
+          className="letter-preview"
+          aria-label={`Premier groupe de lettres : ${INITIAL_ACTIVE_LETTERS.join(
+            ', ',
+          )}`}
+        >
+          {INITIAL_LETTER_CARDS.map((card) => (
+            <span key={card.letter} aria-label={card.audioText}>
+              {card.letter}
+            </span>
           ))}
         </div>
       </section>

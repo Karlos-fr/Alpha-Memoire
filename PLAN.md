@@ -25,13 +25,14 @@
 
 ## Phase 3 - Données des lettres
 
-- [ ] Créer le fichier de données des lettres.
-- [ ] Ajouter les lettres du groupe initial : `N`, `A`, `T`, `H`.
-- [ ] Ajouter pour chaque lettre un mot associé.
-- [ ] Ajouter pour chaque lettre une phrase audio, par exemple `N comme Nathan`.
-- [ ] Ajouter une représentation visuelle temporaire pour chaque lettre.
-- [ ] Préparer la structure pour ajouter les 26 lettres plus tard.
-- [ ] Vérifier que les accents sont correctement encodés dans les fichiers.
+- [x] Créer le fichier de données des lettres.
+- [x] Ajouter les lettres du groupe initial : `N`, `A`, `T`, `H`.
+- [x] Ajouter les cartes des 26 lettres avec mot, phrase audio et visuel temporaire.
+- [x] Ajouter pour chaque lettre un mot associé.
+- [x] Ajouter pour chaque lettre une phrase audio, par exemple `N comme Nathan`.
+- [x] Ajouter une représentation visuelle temporaire pour chaque lettre.
+- [x] Préparer la structure pour ajouter les 26 lettres plus tard.
+- [x] Vérifier que les accents sont correctement encodés dans les fichiers.
 
 ## Phase 4 - Stockage local
 
