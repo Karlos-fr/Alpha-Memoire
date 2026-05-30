@@ -200,7 +200,10 @@ test('shows parent dashboard with history details and reset action', async ({ pa
   await page.locator('.actions .secondary-action').click()
 
   await expect(page.getByRole('heading', { name: 'Tableau de bord' })).toBeVisible()
-  await expect(page.getByText('Seances')).toBeVisible()
+  await expect(page.getByText('Seances', { exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Evolution' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Resultats par seance' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Lettres connues' })).toBeVisible()
   await expect(page.getByText('Seance 1')).toBeVisible()
   await expect(page.getByText('Detail de seance')).toBeVisible()
   await expect(page.getByText('360s', { exact: true })).toBeVisible()

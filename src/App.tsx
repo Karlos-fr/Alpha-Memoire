@@ -580,6 +580,8 @@ function App() {
             <ParentMetric label="Fragiles" value={fragileLetters.length.toString()} />
           </div>
 
+          <ParentCharts sessions={progress.sessions} />
+
           <div className="parent-columns">
             <section className="parent-section" aria-labelledby="status-title">
               <h2 id="status-title">Progression lettres</h2>
@@ -861,6 +863,100 @@ function LetterProgressTile({ progress }: { progress: LetterProgress }) {
 }
 
 /**
+ * Graphiques de suivi bases sur les dernieres seances terminees.
+ */
+function ParentCharts({ sessions }: { sessions: SessionRecord[] }) {
+  const recentSessions = sessions.slice(-8)
+
+  if (recentSessions.length === 0) {
+    return (
+      <section className="parent-section parent-charts" aria-labelledby="charts-title">
+        <h2 id="charts-title">Evolution</h2>
+        <p className="empty-state">Aucune donnee de seance pour le moment.</p>
+      </section>
+    )
+  }
+
+  const maxKnown = Math.max(
+    1,
+    ...recentSessions.map((session) => session.summary.knownLetters.length),
+  )
+
+  return (
+    <section className="parent-section parent-charts" aria-labelledby="charts-title">
+      <h2 id="charts-title">Evolution</h2>
+      <div className="chart-grid">
+        <div className="chart-panel">
+          <h3>Resultats par seance</h3>
+          <div className="session-bars">
+            {recentSessions.map((session, index) => {
+              const exerciseCount = Math.max(1, session.exercises.length)
+              const helpedCount = session.summary.helpedCount
+              const errorCount = getSessionAttemptErrorCount(session)
+              const successCount = Math.max(
+                0,
+                exerciseCount - helpedCount - errorCount,
+              )
+
+              return (
+                <div className="session-bar-row" key={session.id}>
+                  <span>S{sessions.length - recentSessions.length + index + 1}</span>
+                  <div className="stacked-bar" aria-hidden="true">
+                    <span
+                      className="bar-success"
+                      style={{ width: `${getPercent(successCount, exerciseCount)}%` }}
+                    />
+                    <span
+                      className="bar-help"
+                      style={{ width: `${getPercent(helpedCount, exerciseCount)}%` }}
+                    />
+                    <span
+                      className="bar-error"
+                      style={{ width: `${getPercent(errorCount, exerciseCount)}%` }}
+                    />
+                  </div>
+                  <strong>{getPercent(successCount + helpedCount, exerciseCount)}%</strong>
+                </div>
+              )
+            })}
+          </div>
+          <div className="chart-legend">
+            <span className="legend-success">Autonome</span>
+            <span className="legend-help">Aide</span>
+            <span className="legend-error">Erreur</span>
+          </div>
+        </div>
+
+        <div className="chart-panel">
+          <h3>Lettres connues</h3>
+          <div className="known-chart">
+            {recentSessions.map((session, index) => {
+              const knownCount = session.summary.knownLetters.length
+              const fragileCount = session.summary.fragileLetters.length
+
+              return (
+                <div className="known-chart-column" key={session.id}>
+                  <div className="known-chart-track">
+                    <span
+                      className="known-chart-bar"
+                      style={{ height: `${getPercent(knownCount, maxKnown)}%` }}
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <strong>{knownCount}</strong>
+                  <span>S{sessions.length - recentSessions.length + index + 1}</span>
+                  {fragileCount > 0 && <small>{fragileCount} fragile</small>}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/**
  * Detail lisible d'une seance sauvegardee.
  */
 function SessionDetail({ session }: { session: SessionRecord }) {
@@ -885,6 +981,28 @@ function SessionDetail({ session }: { session: SessionRecord }) {
       </div>
     </div>
   )
+}
+
+/**
+ * Compte les reponses ayant necessite plusieurs essais ou ayant echoue.
+ */
+function getSessionAttemptErrorCount(session: SessionRecord) {
+  return session.exercises.reduce((total, exercise) => {
+    const extraAttempts = Math.max(0, exercise.attempts - 1)
+
+    return total + extraAttempts + (exercise.success ? 0 : 1)
+  }, 0)
+}
+
+/**
+ * Calcule un pourcentage entier borne entre 0 et 100.
+ */
+function getPercent(value: number, total: number) {
+  if (total <= 0) {
+    return 0
+  }
+
+  return Math.max(0, Math.min(100, Math.round((value / total) * 100)))
 }
 
 /**

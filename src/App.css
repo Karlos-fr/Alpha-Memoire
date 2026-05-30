@@ -497,6 +497,137 @@ button:focus-visible {
   font-size: 1.25rem;
 }
 
+.parent-section h3 {
+  margin: 0;
+  color: #285f73;
+  font-size: 1rem;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.8fr);
+  gap: 14px;
+}
+
+.chart-panel {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 8px;
+  background: #f7fbff;
+}
+
+.session-bars {
+  display: grid;
+  gap: 10px;
+}
+
+.session-bar-row {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) 46px;
+  gap: 10px;
+  align-items: center;
+  color: #31435a;
+  font-weight: 900;
+}
+
+.session-bar-row > span,
+.known-chart-column > span,
+.known-chart-column small {
+  color: #31435a;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.session-bar-row strong,
+.known-chart-column strong {
+  color: #18283b;
+  font-size: 0.9rem;
+}
+
+.stacked-bar {
+  height: 18px;
+  display: flex;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #e7f2f4;
+}
+
+.stacked-bar span {
+  min-width: 0;
+}
+
+.bar-success,
+.legend-success::before {
+  background: #7bd2ba;
+}
+
+.bar-help,
+.legend-help::before {
+  background: #ffd66b;
+}
+
+.bar-error,
+.legend-error::before {
+  background: #ff9d8f;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chart-legend span {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: #31435a;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.chart-legend span::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+}
+
+.known-chart {
+  min-height: 174px;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 8px;
+  align-items: end;
+}
+
+.known-chart-column {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+  justify-items: center;
+  text-align: center;
+}
+
+.known-chart-track {
+  width: 100%;
+  max-width: 34px;
+  height: 104px;
+  display: flex;
+  align-items: end;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #e7f2f4;
+}
+
+.known-chart-bar {
+  width: 100%;
+  min-height: 4px;
+  border-radius: 8px 8px 0 0;
+  background: #8ee2a3;
+}
+
 .letter-status-groups {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -698,8 +829,13 @@ button:focus-visible {
 
   .parent-summary,
   .parent-columns,
-  .letter-status-groups {
+  .letter-status-groups,
+  .chart-grid {
     grid-template-columns: 1fr;
+  }
+
+  .known-chart {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .letter-progress-grid {
