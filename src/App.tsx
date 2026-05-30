@@ -124,7 +124,6 @@ function App() {
 
   const currentExercise = sessionPlan?.exercises[currentExerciseIndex] ?? null
   const currentCard = currentExercise ? getLetterCard(currentExercise.letter) : null
-  const completedCount = results.length
   const totalCount = sessionPlan?.exercises.length ?? 0
   const selectedSession =
     progress.sessions.find((session) => session.id === selectedSessionId) ??
@@ -471,7 +470,7 @@ function App() {
               <p className="eyebrow">Mission lettres</p>
             </div>
             <p className="session-count">
-              {isDebugSession ? 'Debug' : `${completedCount + 1} / ${totalCount}`}
+              {isDebugSession ? 'Debug' : `${currentExerciseIndex + 1} / ${totalCount}`}
             </p>
           </header>
 

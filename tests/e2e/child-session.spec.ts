@@ -65,6 +65,25 @@ test('hides target letter from visual recognition prompt', async ({ page }) => {
 })
 
 /**
+ * Verifie que le compteur avance seulement quand la carte suivante est affichee.
+ */
+test('keeps session counter on current card during feedback transition', async ({ page }) => {
+  await page.goto('/')
+  await page.locator('.primary-action').first().click()
+
+  const initialCounter = (await page.locator('.session-count').textContent())?.trim()
+  const imageSource = await page.locator('.letter-image-prompt').getAttribute('src')
+  const targetLetter = imageSource?.match(/letter-([a-z])-/)?.[1]?.toUpperCase()
+
+  expect(initialCounter).toMatch(/^1 \/ \d+$/)
+  expect(targetLetter).toBeTruthy()
+
+  await page.getByRole('button', { name: targetLetter, exact: true }).click()
+
+  await expect(page.locator('.session-count')).toHaveText(initialCounter ?? '')
+})
+
+/**
  * Verifie que le panneau debug ouvre un mode d'exercice isole.
  */
 test('starts a debug exercise mode from home', async ({ page }) => {
