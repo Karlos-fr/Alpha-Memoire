@@ -33,6 +33,7 @@ export interface UseSpeechResult {
   stopSpeaking: () => void
   setVolume: (volume: number) => void
   setRate: (rate: number) => void
+  setPitch: (pitch: number) => void
 }
 
 /**
@@ -95,6 +96,7 @@ export function useSpeech(options: UseSpeechOptions = {}): UseSpeechResult {
       utterance.voice = voice
       utterance.volume = settings.volume
       utterance.rate = settings.rate
+      utterance.pitch = settings.pitch
       utterance.onstart = () => setIsSpeaking(true)
       utterance.onend = () => setIsSpeaking(false)
       utterance.onerror = () => setIsSpeaking(false)
@@ -102,7 +104,7 @@ export function useSpeech(options: UseSpeechOptions = {}): UseSpeechResult {
       window.speechSynthesis.speak(utterance)
       return true
     },
-    [isSupported, settings.rate, settings.volume, voice],
+    [isSupported, settings.pitch, settings.rate, settings.volume, voice],
   )
 
   const setVolume = useCallback((volume: number) => {
@@ -115,6 +117,10 @@ export function useSpeech(options: UseSpeechOptions = {}): UseSpeechResult {
     setSettings((currentSettings) => normalizeSpeechSettings({ ...currentSettings, rate }))
   }, [])
 
+  const setPitch = useCallback((pitch: number) => {
+    setSettings((currentSettings) => normalizeSpeechSettings({ ...currentSettings, pitch }))
+  }, [])
+
   return useMemo(
     () => ({
       isSupported,
@@ -125,7 +131,18 @@ export function useSpeech(options: UseSpeechOptions = {}): UseSpeechResult {
       stopSpeaking,
       setVolume,
       setRate,
+      setPitch,
     }),
-    [isSpeaking, isSupported, setRate, setVolume, settings, speak, stopSpeaking, voice],
+    [
+      isSpeaking,
+      isSupported,
+      setPitch,
+      setRate,
+      setVolume,
+      settings,
+      speak,
+      stopSpeaking,
+      voice,
+    ],
   )
 }

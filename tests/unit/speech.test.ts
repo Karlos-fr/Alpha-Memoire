@@ -17,8 +17,8 @@ function createVoice(name: string, lang: string) {
 describe('speech utilities', () => {
   it('selects a fr-FR voice first', () => {
     const voice = selectFrenchVoice([
-      createVoice('English', 'en-US'),
       createVoice('French Canada', 'fr-CA'),
+      createVoice('English', 'en-US'),
       createVoice('French France', 'fr-FR'),
     ])
 
@@ -40,14 +40,25 @@ describe('speech utilities', () => {
     expect(voice).toBeNull()
   })
 
+  it('prefers natural French voices when available', () => {
+    const voice = selectFrenchVoice([
+      createVoice('Microsoft Hortense', 'fr-FR'),
+      createVoice('Microsoft Denise Natural Online', 'fr-FR'),
+    ])
+
+    expect(voice?.name).toBe('Microsoft Denise Natural Online')
+  })
+
   it('keeps speech settings inside safe bounds', () => {
-    expect(normalizeSpeechSettings({ volume: 2, rate: 2 })).toEqual({
+    expect(normalizeSpeechSettings({ volume: 2, rate: 2, pitch: 2 })).toEqual({
       volume: 1,
       rate: 1.2,
+      pitch: 1.2,
     })
-    expect(normalizeSpeechSettings({ volume: -1, rate: 0.2 })).toEqual({
+    expect(normalizeSpeechSettings({ volume: -1, rate: 0.2, pitch: 0.2 })).toEqual({
       volume: 0,
       rate: 0.5,
+      pitch: 0.8,
     })
   })
 })

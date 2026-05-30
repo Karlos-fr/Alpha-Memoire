@@ -8,6 +8,11 @@
 import type { LetterCard, LetterSymbol } from '../types'
 
 /**
+ * Chemin public des assets, compatible avec le sous-chemin GitHub Pages.
+ */
+const LETTER_ASSET_BASE = `${import.meta.env?.BASE_URL ?? '/'}assets/letters`
+
+/**
  * Alphabet français en majuscules, utilisé comme ordre de référence.
  */
 export const LETTER_ALPHABET = [
@@ -54,7 +59,7 @@ export const LETTER_CARDS = {
     audioText: 'A comme Avion',
     temporaryVisual: 'A',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-a-avion.png`,
       alt: "Illustration temporaire d'un avion",
     },
   },
@@ -64,7 +69,7 @@ export const LETTER_CARDS = {
     audioText: 'B comme Ballon',
     temporaryVisual: 'B',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-b-ballon.png`,
       alt: "Illustration temporaire d'un ballon",
     },
   },
@@ -74,7 +79,7 @@ export const LETTER_CARDS = {
     audioText: 'C comme Chat',
     temporaryVisual: 'C',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-c-chat.png`,
       alt: "Illustration temporaire d'un chat",
     },
   },
@@ -84,7 +89,7 @@ export const LETTER_CARDS = {
     audioText: 'D comme Doudou',
     temporaryVisual: 'D',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-d-doudou.png`,
       alt: "Illustration temporaire d'un doudou",
     },
   },
@@ -94,7 +99,7 @@ export const LETTER_CARDS = {
     audioText: 'E comme Éléphant',
     temporaryVisual: 'E',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-e-elephant.png`,
       alt: "Illustration temporaire d'un éléphant",
     },
   },
@@ -104,7 +109,7 @@ export const LETTER_CARDS = {
     audioText: 'F comme Fleur',
     temporaryVisual: 'F',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-f-fleur.png`,
       alt: "Illustration temporaire d'une fleur",
     },
   },
@@ -114,7 +119,7 @@ export const LETTER_CARDS = {
     audioText: 'G comme Gâteau',
     temporaryVisual: 'G',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-g-gateau.png`,
       alt: "Illustration temporaire d'un gâteau",
     },
   },
@@ -124,7 +129,7 @@ export const LETTER_CARDS = {
     audioText: 'H comme Hérisson',
     temporaryVisual: 'H',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-h-herisson.png`,
       alt: "Illustration temporaire d'un hérisson",
     },
   },
@@ -134,7 +139,7 @@ export const LETTER_CARDS = {
     audioText: 'I comme Île',
     temporaryVisual: 'I',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-i-ile.png`,
       alt: "Illustration temporaire d'une île",
     },
   },
@@ -144,7 +149,7 @@ export const LETTER_CARDS = {
     audioText: 'J comme Jouet',
     temporaryVisual: 'J',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-j-jouet.png`,
       alt: "Illustration temporaire d'un jouet",
     },
   },
@@ -154,7 +159,7 @@ export const LETTER_CARDS = {
     audioText: 'K comme Koala',
     temporaryVisual: 'K',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-k-koala.png`,
       alt: "Illustration temporaire d'un koala",
     },
   },
@@ -164,7 +169,7 @@ export const LETTER_CARDS = {
     audioText: 'L comme Lune',
     temporaryVisual: 'L',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-l-lune.png`,
       alt: "Illustration temporaire de la lune",
     },
   },
@@ -174,7 +179,7 @@ export const LETTER_CARDS = {
     audioText: 'M comme Maman',
     temporaryVisual: 'M',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-m-maman.png`,
       alt: 'Illustration temporaire du mot maman',
     },
   },
@@ -184,7 +189,7 @@ export const LETTER_CARDS = {
     audioText: 'N comme Nathan',
     temporaryVisual: 'N',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-n-nathan.png`,
       alt: 'Illustration temporaire du prénom Nathan',
     },
   },
@@ -194,7 +199,7 @@ export const LETTER_CARDS = {
     audioText: 'O comme Ours',
     temporaryVisual: 'O',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-o-ours.png`,
       alt: "Illustration temporaire d'un ours",
     },
   },
@@ -204,7 +209,7 @@ export const LETTER_CARDS = {
     audioText: 'P comme Papa',
     temporaryVisual: 'P',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-p-papa.png`,
       alt: 'Illustration temporaire du mot papa',
     },
   },
@@ -214,7 +219,7 @@ export const LETTER_CARDS = {
     audioText: 'Q comme Quatre',
     temporaryVisual: 'Q',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-q-quatre.png`,
       alt: 'Illustration temporaire du chiffre quatre',
     },
   },
@@ -224,7 +229,7 @@ export const LETTER_CARDS = {
     audioText: 'R comme Robot',
     temporaryVisual: 'R',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-r-robot.png`,
       alt: "Illustration temporaire d'un robot",
     },
   },
@@ -234,7 +239,7 @@ export const LETTER_CARDS = {
     audioText: 'S comme Serpent',
     temporaryVisual: 'S',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-s-serpent.png`,
       alt: "Illustration temporaire d'un serpent",
     },
   },
@@ -244,7 +249,7 @@ export const LETTER_CARDS = {
     audioText: 'T comme Train',
     temporaryVisual: 'T',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-t-train.png`,
       alt: "Illustration temporaire d'un train",
     },
   },
@@ -254,7 +259,7 @@ export const LETTER_CARDS = {
     audioText: 'U comme Usine',
     temporaryVisual: 'U',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-u-usine.png`,
       alt: "Illustration temporaire d'une usine",
     },
   },
@@ -264,7 +269,7 @@ export const LETTER_CARDS = {
     audioText: 'V comme Vélo',
     temporaryVisual: 'V',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-v-velo.png`,
       alt: "Illustration temporaire d'un vélo",
     },
   },
@@ -274,7 +279,7 @@ export const LETTER_CARDS = {
     audioText: 'W comme Wagon',
     temporaryVisual: 'W',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-w-wagon.png`,
       alt: "Illustration temporaire d'un wagon",
     },
   },
@@ -284,7 +289,7 @@ export const LETTER_CARDS = {
     audioText: 'X comme Xylophone',
     temporaryVisual: 'X',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-x-xylophone.png`,
       alt: "Illustration temporaire d'un xylophone",
     },
   },
@@ -294,7 +299,7 @@ export const LETTER_CARDS = {
     audioText: 'Y comme Yaourt',
     temporaryVisual: 'Y',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-y-yaourt.png`,
       alt: "Illustration temporaire d'un yaourt",
     },
   },
@@ -304,7 +309,7 @@ export const LETTER_CARDS = {
     audioText: 'Z comme Zèbre',
     temporaryVisual: 'Z',
     image: {
-      src: '',
+      src: `${LETTER_ASSET_BASE}/letter-z-zebre.png`,
       alt: "Illustration temporaire d'un zèbre",
     },
   },

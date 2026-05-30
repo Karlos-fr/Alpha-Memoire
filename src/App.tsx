@@ -24,6 +24,7 @@ import {
 import type {
   AppProgress,
   ExerciseResult,
+  ExerciseType,
   LetterSymbol,
   PlannedExercise,
   SessionPlan,
@@ -60,6 +61,38 @@ interface CompleteExerciseOptions {
 }
 
 /**
+ * Délai court pour passer une étape sans félicitation audio.
+ */
+const QUICK_TRANSITION_MS = 180
+
+/**
+ * Délai laissé à la félicitation avant de changer d'écran.
+ */
+const PRAISE_TRANSITION_MS = 1800
+
+/**
+ * Modes d'exercices exposés dans le panneau de test parent.
+ */
+const DEBUG_EXERCISE_TYPES = [
+  'discovery',
+  'recognition',
+  'choice',
+  'association',
+  'naming',
+] as const satisfies readonly ExerciseType[]
+
+/**
+ * Libellés courts du panneau debug.
+ */
+const DEBUG_EXERCISE_LABELS: Record<ExerciseType, string> = {
+  discovery: 'Découverte',
+  recognition: 'Reconnaissance',
+  choice: 'Choix',
+  association: 'Association',
+  naming: 'Nommer',
+}
+
+/**
  * Affiche l'application enfant principale.
  */
 function App() {
@@ -77,6 +110,7 @@ function App() {
   const [attempts, setAttempts] = useState(0)
   const [helped, setHelped] = useState(false)
   const [feedback, setFeedback] = useState<FeedbackState>('idle')
+  const [isDebugSession, setIsDebugSession] = useState(false)
 
   const currentExercise = sessionPlan?.exercises[currentExerciseIndex] ?? null
   const currentCard = currentExercise ? getLetterCard(currentExercise.letter) : null
@@ -91,8 +125,8 @@ function App() {
       return 'Regardons ensemble.'
     }
 
-    return currentExercise?.prompt ?? welcomeInstruction
-  }, [currentExercise?.prompt, feedback, welcomeInstruction])
+    return currentExercise ? getDisplayedPrompt(currentExercise) : welcomeInstruction
+  }, [currentExercise, feedback, welcomeInstruction])
 
   useEffect(() => {
     if (hasTriedAutoSpeech.current) {
@@ -118,8 +152,29 @@ function App() {
     setAttempts(0)
     setHelped(false)
     setFeedback('idle')
+    setIsDebugSession(false)
     setView('session')
     speech.speak(nextPlan.exercises[0]?.prompt ?? welcomeInstruction)
+  }
+
+  /**
+   * Lance un exercice isolé pour tester rapidement un mode sans sauvegarder.
+   */
+  function startDebugExercise(type: ExerciseType) {
+    const storedProgress = ensureStoredProgress()
+    const nextPlan = createDebugSessionPlan(type)
+
+    sessionStartedAt.current = new Date().toISOString()
+    setProgress(storedProgress)
+    setSessionPlan(nextPlan)
+    setCurrentExerciseIndex(0)
+    setResults([])
+    setAttempts(0)
+    setHelped(false)
+    setFeedback('idle')
+    setIsDebugSession(true)
+    setView('session')
+    speech.speak(nextPlan.exercises[0].prompt)
   }
 
   /**
@@ -201,7 +256,9 @@ function App() {
       options.outcome ?? (usedHelp ? 'successWithHelp' : 'successWithoutHelp')
     const shouldPraise = options.shouldPraise ?? true
     const completedAt = new Date().toISOString()
-    const nextProgress = updateLetterProgress(progress, exercise, outcome)
+    const nextProgress = isDebugSession
+      ? progress
+      : updateLetterProgress(progress, exercise, outcome)
     const result: ExerciseResult = {
       id: `${sessionPlan.id}-${exercise.id}`,
       type: exercise.type,
@@ -238,7 +295,7 @@ function App() {
       setHelped(false)
       setFeedback('idle')
       speech.speak(sessionPlan.exercises[nextIndex].prompt)
-    }, shouldPraise ? 700 : 120)
+    }, shouldPraise ? PRAISE_TRANSITION_MS : QUICK_TRANSITION_MS)
   }
 
   /**
@@ -246,6 +303,12 @@ function App() {
    */
   function finishSession(nextProgress: AppProgress, nextResults: ExerciseResult[]) {
     if (!sessionPlan) {
+      return
+    }
+
+    if (isDebugSession) {
+      setView('complete')
+      speech.speak(`Test terminé ${CHILD_NAME}.`)
       return
     }
 
@@ -315,17 +378,18 @@ function App() {
   if (view === 'session' && currentExercise) {
     const companionMood =
       feedback === 'help' ? 'helping' : feedback === 'success' ? 'celebrating' : 'listening'
+    const shouldHideTargetText = hidesTargetText(currentExercise)
 
     return (
       <main className="app-shell session-shell">
-        <section className="session-view" aria-labelledby="exercise-title">
+        <section className="session-view" aria-label="Exercice en cours">
           <header className="session-header">
             <div className="mission-brand">
               <MissionCompanion mood={companionMood} />
               <p className="eyebrow">Mission lettres</p>
             </div>
             <p className="session-count">
-              {completedCount + 1} / {totalCount}
+              {isDebugSession ? 'Debug' : `${completedCount + 1} / ${totalCount}`}
             </p>
           </header>
 
@@ -333,14 +397,24 @@ function App() {
             <p className="spoken-instruction" aria-live="polite">
               {lastMessage}
             </p>
-            <h1 id="exercise-title" className="exercise-letter">
-              {currentExercise.letter}
-            </h1>
-            {currentCard && (
-              <div className="letter-word">
-                <span className="letter-visual">{currentCard.temporaryVisual}</span>
-                <span>{currentCard.word}</span>
-              </div>
+            {shouldHideTargetText && currentCard ? (
+              <img
+                className="letter-image-prompt"
+                src={currentCard.image.src}
+                alt={currentCard.image.alt}
+              />
+            ) : (
+              <>
+                <h1 id="exercise-title" className="exercise-letter">
+                  {currentExercise.letter}
+                </h1>
+                {currentCard && (
+                  <div className="letter-word">
+                    <span className="letter-visual">{currentCard.temporaryVisual}</span>
+                    <span>{currentCard.word}</span>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
@@ -398,6 +472,21 @@ function App() {
             >
               Réécouter
             </button>
+          </div>
+          <div className="debug-panel" aria-label="Tests rapides des exercices">
+            <p className="debug-title">Debug exercices</p>
+            <div className="debug-actions">
+              {DEBUG_EXERCISE_TYPES.map((type) => (
+                <button
+                  type="button"
+                  key={type}
+                  className="debug-action"
+                  onClick={() => startDebugExercise(type)}
+                >
+                  {DEBUG_EXERCISE_LABELS[type]}
+                </button>
+              ))}
+            </div>
           </div>
           <p className="spoken-instruction" aria-live="polite">
             {welcomeInstruction}
@@ -518,6 +607,83 @@ function MissionCompanion({ mood }: { mood: CompanionMood }) {
       </div>
     </div>
   )
+}
+
+/**
+ * Masque la lettre cible dans les consignes visuelles de reconnaissance.
+ */
+function getDisplayedPrompt(exercise: PlannedExercise) {
+  if (hidesTargetText(exercise)) {
+    return 'Écoute puis choisis la bonne lettre.'
+  }
+
+  return exercise.prompt
+}
+
+/**
+ * Indique les exercices où l'écran ne doit pas donner la réponse par écrit.
+ */
+function hidesTargetText(exercise: PlannedExercise) {
+  return exercise.type === 'recognition' || exercise.type === 'choice'
+}
+
+/**
+ * Crée une mini-séance locale pour inspecter un type d'exercice précis.
+ */
+function createDebugSessionPlan(type: ExerciseType): SessionPlan {
+  const letter = 'T'
+  const card = getLetterCard(letter)
+  const createdAt = new Date().toISOString()
+
+  return {
+    id: `debug-session-${type}-${createdAt}`,
+    exercises: [
+      {
+        id: `debug-${type}`,
+        type,
+        letter,
+        choices: getDebugChoices(type, letter),
+        prompt: getDebugPrompt(type, letter, card?.audioText),
+      },
+    ],
+    letters: [letter],
+    introducedLetters: [],
+    createdAt,
+  }
+}
+
+/**
+ * Fournit des choix fixes pour rendre le debug prévisible.
+ */
+function getDebugChoices(type: ExerciseType, letter: LetterSymbol) {
+  if (type === 'recognition') {
+    return [letter, 'N']
+  }
+
+  if (type === 'choice') {
+    return ['N', letter, 'A']
+  }
+
+  return [letter]
+}
+
+/**
+ * Reproduit les consignes du générateur de séance pour un exercice debug.
+ */
+function getDebugPrompt(
+  type: ExerciseType,
+  letter: LetterSymbol,
+  associationPrompt?: string,
+) {
+  if (type === 'discovery' || type === 'association') {
+    return associationPrompt ?? `${letter} comme ${letter}`
+  }
+
+  if (type === 'naming') {
+    return "Tu te rappelles comment elle s'appelle ?"
+  }
+
+  return `Montre-moi le ${letter}`
 }
 
 export default App
