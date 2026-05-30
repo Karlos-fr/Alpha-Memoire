@@ -1,3 +1,9 @@
+/**
+ * Styles globaux de l'application.
+ *
+ * Pose les règles de base partagées par toutes les futures vues.
+ */
+
 :root {
   font-family:
     Inter, ui-rounded, "Trebuchet MS", system-ui, -apple-system, BlinkMacSystemFont,

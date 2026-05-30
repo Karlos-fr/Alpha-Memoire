@@ -14,14 +14,14 @@
 
 ## Phase 2 - Modèles TypeScript
 
-- [ ] Créer le type `LetterStatus` : `new`, `learning`, `fragile`, `known`.
-- [ ] Créer le type `ExerciseType` : `discovery`, `recognition`, `choice`, `association`, `naming`.
-- [ ] Créer le type `LetterCard` pour décrire une lettre, son mot, son image et sa phrase audio.
-- [ ] Créer le type `LetterProgress` pour stocker la progression d'une lettre.
-- [ ] Créer le type `ExerciseResult` pour stocker le résultat d'un exercice.
-- [ ] Créer le type `SessionRecord` pour stocker une séance complète.
-- [ ] Créer le type `AppProgress` pour stocker toute la progression de Nathan.
-- [ ] Ajouter des constantes pour le prénom `Nathan`, la durée cible et le nombre d'exercices.
+- [x] Créer le type `LetterStatus` : `new`, `learning`, `fragile`, `known`.
+- [x] Créer le type `ExerciseType` : `discovery`, `recognition`, `choice`, `association`, `naming`.
+- [x] Créer le type `LetterCard` pour décrire une lettre, son mot, son image et sa phrase audio.
+- [x] Créer le type `LetterProgress` pour stocker la progression d'une lettre.
+- [x] Créer le type `ExerciseResult` pour stocker le résultat d'un exercice.
+- [x] Créer le type `SessionRecord` pour stocker une séance complète.
+- [x] Créer le type `AppProgress` pour stocker toute la progression de Nathan.
+- [x] Ajouter des constantes pour le prénom `Nathan`, la durée cible et le nombre d'exercices.
 
 ## Phase 3 - Données des lettres
 
@@ -108,7 +108,8 @@
 ## Phase 9 - Univers visuel
 
 - [ ] Créer une direction visuelle espace et mission.
-- [ ] Ajouter un compagnon visuel type petit droïde original fortement inspiré de Star Wars : noms, logos, personnages, musiques.
+- [ ] Ajouter un compagnon visuel type petit droïde original.
+- [ ] Éviter toute reprise directe de Star Wars : noms, logos, personnages, musiques.
 - [ ] Définir une palette douce, contrastée et lisible.
 - [ ] Adapter les tailles pour mobile et PC.
 - [ ] Ajouter des états visuels pour réponse correcte, aide et transition.

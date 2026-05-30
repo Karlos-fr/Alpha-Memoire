@@ -1,3 +1,10 @@
+/**
+ * Styles du premier écran Alpha-Mémoire.
+ *
+ * Définit une mise en page responsive pour l'accueil enfant et le groupe de
+ * lettres initial.
+ */
+
 .app-shell {
   min-height: 100vh;
   display: grid;
