@@ -26,6 +26,16 @@ export interface GenerateSessionPlanOptions {
 }
 
 /**
+ * MÃ©moire rÃ©cente utilisÃ©e pour adapter la sÃ©ance suivante.
+ */
+interface SessionAdaptationContext {
+  now: string
+  recentProblemLetters: LetterSymbol[]
+  stableLetters: LetterSymbol[]
+  dueReviewLetters: LetterSymbol[]
+}
+
+/**
  * Groupes de lettres classés par statut pédagogique.
  */
 interface LetterGroups {
@@ -44,8 +54,9 @@ export function generateSessionPlan(
 ): SessionPlan {
   const random = options.random ?? Math.random
   const createdAt = options.now ?? new Date().toISOString()
-  const activeLetters = selectActiveLetters(progress, random)
-  const exercises = buildExercises(progress, activeLetters, random)
+  const context = createSessionAdaptationContext(progress, createdAt)
+  const activeLetters = selectActiveLetters(progress, random, context)
+  const exercises = buildExercises(progress, activeLetters, random, context)
 
   return {
     id: `session-plan-${createdAt}`,
@@ -61,7 +72,11 @@ export function generateSessionPlan(
 /**
  * Sélectionne 3 à 5 lettres différentes pour la séance.
  */
-function selectActiveLetters(progress: AppProgress, random: () => number): LetterSymbol[] {
+function selectActiveLetters(
+  progress: AppProgress,
+  random: () => number,
+  context: SessionAdaptationContext,
+): LetterSymbol[] {
   const groups = groupLetters(progress)
   const selectedLetters: LetterSymbol[] = []
   const activeLearningLetters = [...groups.fragile, ...groups.learning].filter((letterProgress) =>
@@ -71,8 +86,10 @@ function selectActiveLetters(progress: AppProgress, random: () => number): Lette
     progress.activeLetters.includes(letterProgress.letter),
   )
 
+  addLetters(selectedLetters, context.recentProblemLetters, 3)
   addLetters(selectedLetters, sortByPriority(groups.fragile), 3)
   addLetters(selectedLetters, shuffle(activeLearningLetters, random), 4)
+  addLetters(selectedLetters, context.dueReviewLetters, 5)
   addLetters(selectedLetters, getKnownLettersToReview(knownReviewLetters), 1)
 
   if (canIntroduceNewLetter(progress, groups, selectedLetters)) {
@@ -92,11 +109,12 @@ function buildExercises(
   progress: AppProgress,
   letters: LetterSymbol[],
   random: () => number,
+  context: SessionAdaptationContext,
 ): PlannedExercise[] {
   const targetCount = getTargetExerciseCount(random)
   const exercises: PlannedExercise[] = []
   const easyLetters = getEasyStartLetters(progress, letters)
-  const weightedLetters = getWeightedLetters(progress, letters)
+  const weightedLetters = getWeightedLetters(progress, letters, context)
 
   easyLetters.slice(0, 2).forEach((letter, index) => {
     exercises.push(createPlannedExercise(index, 'recognition', letter, letters, random))
@@ -104,7 +122,7 @@ function buildExercises(
 
   while (exercises.length < targetCount) {
     const letter = weightedLetters[exercises.length % weightedLetters.length]
-    const type = getExerciseType(progress.letters[letter], exercises.length)
+    const type = getExerciseType(progress.letters[letter], exercises.length, context)
     exercises.push(createPlannedExercise(exercises.length, type, letter, letters, random))
   }
 
@@ -221,9 +239,25 @@ function getEasyStartLetters(progress: AppProgress, letters: LetterSymbol[]) {
 /**
  * Crée une liste pondérée de lettres pour respecter la priorité adaptative.
  */
-function getWeightedLetters(progress: AppProgress, letters: LetterSymbol[]) {
+function getWeightedLetters(
+  progress: AppProgress,
+  letters: LetterSymbol[],
+  context: SessionAdaptationContext,
+) {
   const weightedLetters = letters.flatMap((letter) => {
     const status = progress.letters[letter]?.status
+
+    if (context.recentProblemLetters.includes(letter)) {
+      return [letter, letter, letter, letter, letter, letter, letter]
+    }
+
+    if (context.stableLetters.includes(letter) && !context.dueReviewLetters.includes(letter)) {
+      return [letter]
+    }
+
+    if (context.dueReviewLetters.includes(letter)) {
+      return [letter, letter]
+    }
 
     if (status === 'fragile') {
       return [letter, letter, letter, letter, letter, letter]
@@ -242,12 +276,20 @@ function getWeightedLetters(progress: AppProgress, letters: LetterSymbol[]) {
 /**
  * Détermine le type d'exercice à générer.
  */
-function getExerciseType(progress: LetterProgress | undefined, index: number): ExerciseType {
+function getExerciseType(
+  progress: LetterProgress | undefined,
+  index: number,
+  context: SessionAdaptationContext,
+): ExerciseType {
   if (!progress || progress.status === 'new') {
     return index % 2 === 0 ? 'discovery' : 'recognition'
   }
 
-  if (progress.status === 'known' && progress.successWithoutHelpCount >= 4) {
+  if (context.recentProblemLetters.includes(progress.letter)) {
+    return index % 2 === 0 ? 'association' : 'recognition'
+  }
+
+  if (isReadyForNaming(progress, context)) {
     return index % 4 === 0 ? 'naming' : 'choice'
   }
 
@@ -261,6 +303,88 @@ function getExerciseType(progress: LetterProgress | undefined, index: number): E
 /**
  * Construit les choix affichés pour un exercice.
  */
+/**
+ * Construit les signaux issus de l'historique des dernieres seances.
+ */
+function createSessionAdaptationContext(
+  progress: AppProgress,
+  now: string,
+): SessionAdaptationContext {
+  const recentProblemLetters = getRecentProblemLetters(progress)
+  const stableLetters = Object.values(progress.letters)
+    .filter((letterProgress) => isStableLetter(letterProgress, recentProblemLetters))
+    .map((letterProgress) => letterProgress.letter)
+  const dueReviewLetters = Object.values(progress.letters)
+    .filter((letterProgress) => isDueForReview(letterProgress, now))
+    .map((letterProgress) => letterProgress.letter)
+
+  return {
+    now,
+    recentProblemLetters,
+    stableLetters,
+    dueReviewLetters,
+  }
+}
+
+/**
+ * Detecte les lettres qui ont demande de l'aide ou plusieurs essais recemment.
+ */
+function getRecentProblemLetters(progress: AppProgress) {
+  const letters = progress.sessions
+    .slice(-3)
+    .flatMap((session) => session.exercises)
+    .filter((exercise) => exercise.helped || exercise.attempts > 1 || !exercise.success)
+    .map((exercise) => exercise.letter)
+
+  return uniqueLetters(letters)
+}
+
+/**
+ * Indique si une lettre connue est stable et peut etre moins frequente.
+ */
+function isStableLetter(
+  progress: LetterProgress,
+  recentProblemLetters: LetterSymbol[],
+) {
+  return (
+    progress.status === 'known' &&
+    progress.successWithoutHelpCount >= 4 &&
+    progress.currentStreak >= 4 &&
+    !recentProblemLetters.includes(progress.letter)
+  )
+}
+
+/**
+ * Planifie une petite revision si une lettre connue n'a pas ete vue recemment.
+ */
+function isDueForReview(progress: LetterProgress, now: string) {
+  if (progress.status !== 'known' || !progress.lastSeenAt) {
+    return false
+  }
+
+  const daysSinceLastSeen =
+    (new Date(now).getTime() - new Date(progress.lastSeenAt).getTime()) /
+    (1000 * 60 * 60 * 24)
+
+  return daysSinceLastSeen >= 7
+}
+
+/**
+ * Autorise la nomination seulement lorsque la reconnaissance est stable.
+ */
+function isReadyForNaming(
+  progress: LetterProgress,
+  context: SessionAdaptationContext,
+) {
+  return (
+    progress.status === 'known' &&
+    progress.successWithoutHelpCount >= 4 &&
+    progress.currentStreak >= 4 &&
+    progress.knownSessionCount >= 2 &&
+    !context.recentProblemLetters.includes(progress.letter)
+  )
+}
+
 function getChoices(
   type: ExerciseType,
   letter: LetterSymbol,

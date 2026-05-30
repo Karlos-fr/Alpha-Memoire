@@ -150,14 +150,14 @@
 
 ## Phase 12 - Adaptation séance après séance
 
-- [ ] Utiliser l'historique pour générer la séance suivante.
-- [ ] Augmenter la fréquence d'une lettre après erreur.
-- [ ] Réduire la fréquence d'une lettre stable.
-- [ ] Réviser une lettre connue si elle n'a pas été vue depuis plusieurs jours.
-- [ ] Proposer la nomination seulement si la reconnaissance est stable.
-- [ ] Revenir à un exercice plus simple après une erreur.
-- [ ] Vérifier manuellement qu'une erreur influence bien la séance suivante.
-- [ ] Vérifier manuellement qu'une réussite répétée réduit la fréquence d'une lettre.
+- [x] Utiliser l'historique pour générer la séance suivante.
+- [x] Augmenter la fréquence d'une lettre après erreur.
+- [x] Réduire la fréquence d'une lettre stable.
+- [x] Réviser une lettre connue si elle n'a pas été vue depuis plusieurs jours.
+- [x] Proposer la nomination seulement si la reconnaissance est stable.
+- [x] Revenir à un exercice plus simple après une erreur.
+- [x] Vérifier manuellement qu'une erreur influence bien la séance suivante.
+- [x] Vérifier manuellement qu'une réussite répétée réduit la fréquence d'une lettre.
 
 ## Phase 13 - Tests et validation navigateur
 

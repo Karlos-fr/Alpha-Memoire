@@ -7,7 +7,7 @@
 
 import { describe, expect, it } from 'vitest'
 import { createInitialProgress } from '../../src/lib/progressStorage'
-import type { AppProgress, LetterProgress } from '../../src/types'
+import type { AppProgress, LetterProgress, SessionRecord } from '../../src/types'
 import { generateSessionPlan } from '../../src/features/session/sessionGenerator'
 
 /**
@@ -40,6 +40,52 @@ function withLetter(
       },
     },
   }
+}
+
+/**
+ * Ajoute une seance terminee a l'historique de test.
+ */
+function withSession(progress: AppProgress, session: SessionRecord) {
+  return {
+    ...progress,
+    sessions: [...progress.sessions, session],
+  }
+}
+
+/**
+ * Cree une seance de test centree sur une lettre.
+ */
+function createSession(letter: string, overrides: Partial<SessionRecord['exercises'][number]>) {
+  return {
+    id: `session-${letter}`,
+    startedAt: '2026-05-29T12:00:00.000Z',
+    endedAt: '2026-05-29T12:05:00.000Z',
+    durationSeconds: 300,
+    exercises: [
+      {
+        id: `exercise-${letter}`,
+        type: 'choice',
+        letter,
+        choices: [letter, 'N', 'A'],
+        scored: true,
+        success: true,
+        attempts: 1,
+        helped: false,
+        parentValidated: false,
+        startedAt: '2026-05-29T12:00:00.000Z',
+        completedAt: '2026-05-29T12:00:30.000Z',
+        ...overrides,
+      },
+    ],
+    summary: {
+      successes: 1,
+      errors: 0,
+      helpedCount: overrides.helped ? 1 : 0,
+      lettersPracticed: [letter],
+      fragileLetters: [],
+      knownLetters: [],
+    },
+  } satisfies SessionRecord
 }
 
 describe('sessionGenerator', () => {
@@ -135,5 +181,94 @@ describe('sessionGenerator', () => {
     const association = plan.exercises.find((exercise) => exercise.type === 'association')
 
     expect(association?.prompt).toBe('N comme Nathan')
+  })
+
+  it('uses recent session history to increase a helped letter frequency', () => {
+    const baseProgress = createInitialProgress(NOW)
+    const progress = withSession(
+      withLetter(baseProgress, 'H', {
+        status: 'learning',
+        seenCount: 2,
+        helpCount: 1,
+      }),
+      createSession('H', {
+        helped: true,
+        attempts: 2,
+      }),
+    )
+    const plan = generateSessionPlan(progress, {
+      now: NOW,
+      random: stableRandom,
+    })
+    const hExercises = plan.exercises.filter((exercise) => exercise.letter === 'H')
+
+    expect(plan.letters).toContain('H')
+    expect(hExercises.length).toBeGreaterThanOrEqual(4)
+    expect(hExercises.some((exercise) => exercise.type === 'association')).toBe(true)
+  })
+
+  it('reviews a known letter that has not been seen for several days', () => {
+    const progress = withLetter(createInitialProgress(NOW), 'N', {
+      status: 'known',
+      successWithoutHelpCount: 4,
+      currentStreak: 4,
+      knownSessionCount: 2,
+      lastSeenAt: '2026-05-20T12:00:00.000Z',
+    })
+    const plan = generateSessionPlan(progress, {
+      now: NOW,
+      random: stableRandom,
+    })
+
+    expect(plan.letters).toContain('N')
+  })
+
+  it('does not propose naming before recognition is stable across sessions', () => {
+    const stableInOneSession = createInitialProgress(NOW).activeLetters.reduce(
+      (progress, letter) =>
+        withLetter(progress, letter, {
+          status: 'known',
+          successWithoutHelpCount: 5,
+          currentStreak: 4,
+          knownSessionCount: 1,
+          lastSeenAt: '2026-05-30T11:00:00.000Z',
+        }),
+      createInitialProgress(NOW),
+    )
+    const plan = generateSessionPlan(stableInOneSession, {
+      now: NOW,
+      random: stableRandom,
+    })
+
+    expect(plan.exercises.some((exercise) => exercise.type === 'naming')).toBe(false)
+  })
+
+  it('reduces repetition for a stable known letter compared with a recent problem', () => {
+    const baseProgress = createInitialProgress(NOW)
+    const stableProgress = withLetter(baseProgress, 'N', {
+      status: 'known',
+      successWithoutHelpCount: 6,
+      currentStreak: 6,
+      knownSessionCount: 3,
+      lastSeenAt: '2026-05-30T11:00:00.000Z',
+    })
+    const progress = withSession(
+      withLetter(stableProgress, 'H', {
+        status: 'learning',
+        helpCount: 1,
+      }),
+      createSession('H', {
+        helped: true,
+        attempts: 2,
+      }),
+    )
+    const plan = generateSessionPlan(progress, {
+      now: NOW,
+      random: stableRandom,
+    })
+    const nCount = plan.exercises.filter((exercise) => exercise.letter === 'N').length
+    const hCount = plan.exercises.filter((exercise) => exercise.letter === 'H').length
+
+    expect(hCount).toBeGreaterThan(nCount)
   })
 })
