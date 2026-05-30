@@ -10,6 +10,7 @@ import { createInitialLetterProgress } from '../../src/lib/progressStorage'
 import type { LetterProgress } from '../../src/types'
 import {
   recordError,
+  recordExposure,
   recordSuccessWithHelp,
   recordSuccessWithoutHelp,
 } from '../../src/features/progress/progressEngine'
@@ -36,6 +37,20 @@ function repeatSuccesses(
 }
 
 describe('progressEngine', () => {
+  it('records an exposure without counting success or error', () => {
+    const progress = recordExposure(createProgress(), {
+      occurredAt: '2026-05-30T09:59:00.000Z',
+      sessionId: 'session-1',
+    })
+
+    expect(progress.status).toBe('learning')
+    expect(progress.seenCount).toBe(1)
+    expect(progress.successCount).toBe(0)
+    expect(progress.errorCount).toBe(0)
+    expect(progress.currentStreak).toBe(0)
+    expect(progress.lastSeenAt).toBe('2026-05-30T09:59:00.000Z')
+  })
+
   it('records an autonomous success and moves a new letter to learning', () => {
     const progress = recordSuccessWithoutHelp(createProgress(), {
       occurredAt: '2026-05-30T10:00:00.000Z',

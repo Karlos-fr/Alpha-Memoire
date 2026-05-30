@@ -68,6 +68,7 @@ export interface ExerciseResult {
   type: ExerciseType
   letter: LetterSymbol
   choices: LetterSymbol[]
+  scored: boolean
   success: boolean
   attempts: number
   helped: boolean

@@ -16,6 +16,16 @@ export interface ProgressUpdateContext {
 }
 
 /**
+ * Marque une lettre comme simplement vue, sans réussite ni erreur.
+ */
+export function recordExposure(
+  progress: LetterProgress,
+  context: ProgressUpdateContext,
+): LetterProgress {
+  return applyProgressStatus(markSeen(progress, context.occurredAt))
+}
+
+/**
  * Met à jour une lettre après une bonne réponse autonome.
  */
 export function recordSuccessWithoutHelp(

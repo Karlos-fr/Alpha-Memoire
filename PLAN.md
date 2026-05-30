@@ -90,21 +90,21 @@
 
 ## Phase 8 - Interface enfant
 
-- [ ] Créer l'écran d'accueil enfant.
-- [ ] Ajouter un bouton pour démarrer une séance.
-- [ ] Créer le composant d'exercice principal.
-- [ ] Afficher une très grande lettre centrale.
-- [ ] Afficher les choix sous forme de gros boutons tactiles.
-- [ ] Créer le mode découverte.
-- [ ] Créer le mode reconnaissance.
-- [ ] Créer le mode choix avec 2 lettres.
-- [ ] Créer le mode choix avec 3 lettres.
-- [ ] Créer le mode association.
-- [ ] Créer le mode nomination avec validation parentale.
-- [ ] Ajouter les messages positifs personnalisés avec `Nathan`.
-- [ ] Ajouter une aide visuelle après une erreur.
-- [ ] Ne jamais afficher de score côté enfant.
-- [ ] Créer un écran de fin de séance positif.
+- [x] Créer l'écran d'accueil enfant.
+- [x] Ajouter un bouton pour démarrer une séance.
+- [x] Créer le composant d'exercice principal.
+- [x] Afficher une très grande lettre centrale.
+- [x] Afficher les choix sous forme de gros boutons tactiles.
+- [x] Créer le mode découverte.
+- [x] Créer le mode reconnaissance.
+- [x] Créer le mode choix avec 2 lettres.
+- [x] Créer le mode choix avec 3 lettres.
+- [x] Créer le mode association.
+- [x] Créer le mode nomination avec validation parentale.
+- [x] Ajouter les messages positifs personnalisés avec `Nathan`.
+- [x] Ajouter une aide visuelle après une erreur.
+- [x] Ne jamais afficher de score côté enfant.
+- [x] Créer un écran de fin de séance positif.
 
 ## Phase 9 - Univers visuel
 

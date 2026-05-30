@@ -115,14 +115,17 @@ export function useSpeech(options: UseSpeechOptions = {}): UseSpeechResult {
     setSettings((currentSettings) => normalizeSpeechSettings({ ...currentSettings, rate }))
   }, [])
 
-  return {
-    isSupported,
-    isSpeaking,
-    voice,
-    settings,
-    speak,
-    stopSpeaking,
-    setVolume,
-    setRate,
-  }
+  return useMemo(
+    () => ({
+      isSupported,
+      isSpeaking,
+      voice,
+      settings,
+      speak,
+      stopSpeaking,
+      setVolume,
+      setRate,
+    }),
+    [isSpeaking, isSupported, setRate, setVolume, settings, speak, stopSpeaking, voice],
+  )
 }
