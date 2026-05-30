@@ -26,14 +26,6 @@ export const SESSION_EXERCISE_COUNT = {
 } as const
 
 /**
- * Durée pédagogique cible d'une séance, en minutes.
- */
-export const SESSION_DURATION_MINUTES = {
-  min: 5,
-  max: 10,
-} as const
-
-/**
  * Version du format de sauvegarde de la progression.
  */
 export const APP_PROGRESS_VERSION = 1
