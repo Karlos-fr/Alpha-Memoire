@@ -36,16 +36,16 @@
 
 ## Phase 4 - Stockage local
 
-- [ ] Créer une clé de stockage unique pour Alpha-Mémoire.
-- [ ] Créer une fonction `loadProgress`.
-- [ ] Créer une fonction `saveProgress`.
-- [ ] Créer une fonction `createInitialProgress`.
-- [ ] Initialiser automatiquement la progression si aucune donnée n'existe.
-- [ ] Sauvegarder la progression après chaque séance.
-- [ ] Créer une fonction `exportProgressToJson`.
-- [ ] Créer une fonction `importProgressFromJson`.
-- [ ] Gérer les erreurs d'import JSON.
-- [ ] Tester la persistance après rechargement de la page.
+- [x] Créer une clé de stockage unique pour Alpha-Mémoire.
+- [x] Créer une fonction `loadProgress`.
+- [x] Créer une fonction `saveProgress`.
+- [x] Créer une fonction `createInitialProgress`.
+- [x] Initialiser automatiquement la progression si aucune donnée n'existe.
+- [x] Sauvegarder la progression après chaque séance.
+- [x] Créer une fonction `exportProgressToJson`.
+- [x] Créer une fonction `importProgressFromJson`.
+- [x] Gérer les erreurs d'import JSON.
+- [x] Tester la persistance après rechargement de la page.
 
 ## Phase 5 - Moteur de progression
 

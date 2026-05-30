@@ -38,3 +38,8 @@ export const SESSION_DURATION_MINUTES = {
  * Version du format de sauvegarde de la progression.
  */
 export const APP_PROGRESS_VERSION = 1
+
+/**
+ * Clé unique utilisée dans localStorage pour la progression de Nathan.
+ */
+export const PROGRESS_STORAGE_KEY = 'alpha-memoire:nathan:progress:v1'

@@ -6,13 +6,19 @@
  */
 
 import './App.css'
+import { useEffect } from 'react'
 import { INITIAL_LETTER_CARDS } from './data/letters'
 import { CHILD_NAME, INITIAL_ACTIVE_LETTERS } from './lib/appConfig'
+import { ensureStoredProgress } from './lib/progressStorage'
 
 /**
  * Affiche l'écran d'accueil principal.
  */
 function App() {
+  useEffect(() => {
+    ensureStoredProgress()
+  }, [])
+
   return (
     <main className="app-shell">
       <section className="hero" aria-labelledby="app-title">
