@@ -168,6 +168,30 @@ describe('sessionGenerator', () => {
     expect(plan.letters.length).toBeLessThanOrEqual(5)
   })
 
+  it('introduces one new letter after three recent clean sessions', () => {
+    const baseProgress = createInitialProgress(NOW)
+    const cleanProgress = ['N', 'A', 'T'].reduce(
+      (progress, letter, index) =>
+        withSession(
+          progress,
+          createSession(letter, {
+            id: `clean-exercise-${index + 1}`,
+            helped: false,
+            attempts: 1,
+            success: true,
+          }),
+        ),
+      baseProgress,
+    )
+    const plan = generateSessionPlan(cleanProgress, {
+      now: NOW,
+      random: stableRandom,
+    })
+
+    expect(plan.introducedLetters.length).toBe(1)
+    expect(baseProgress.activeLetters).not.toContain(plan.introducedLetters[0])
+  })
+
   it('uses association prompts with the letter card audio text', () => {
     const baseProgress = createInitialProgress(NOW)
     const progress = withLetter(baseProgress, 'N', {

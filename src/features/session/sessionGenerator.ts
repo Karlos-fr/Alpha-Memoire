@@ -93,7 +93,7 @@ function selectActiveLetters(
   addLetters(selectedLetters, getKnownLettersToReview(knownReviewLetters), 1)
 
   if (canIntroduceNewLetter(progress, groups, selectedLetters)) {
-    addLetters(selectedLetters, groups.newLetters, 1)
+    addLetters(selectedLetters, groups.newLetters, selectedLetters.length + 1)
   }
 
   addLetters(selectedLetters, shuffle(activeLearningLetters, random), 5)
@@ -187,9 +187,29 @@ function canIntroduceNewLetter(
 
   return (
     groups.fragile.length === 0 &&
-    unstableActiveLetterCount <= 1 &&
+    (unstableActiveLetterCount <= 1 || hasRecentCleanSessions(progress, 3)) &&
     selectedLetters.length < 5 &&
     groups.newLetters.length > 0
+  )
+}
+
+/**
+ * Autorise une progression douce après plusieurs séances récentes sans erreur ni aide.
+ */
+function hasRecentCleanSessions(progress: AppProgress, sessionCount: number) {
+  const recentSessions = progress.sessions.slice(-sessionCount)
+
+  return (
+    recentSessions.length >= sessionCount &&
+    recentSessions.every((session) =>
+      session.exercises.every((exercise) => {
+        if (!exercise.scored) {
+          return true
+        }
+
+        return exercise.success && !exercise.helped && exercise.attempts === 1
+      }),
+    )
   )
 }
 
