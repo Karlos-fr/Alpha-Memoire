@@ -7,6 +7,7 @@
 
 import { expect, test } from '@playwright/test'
 import { PROGRESS_STORAGE_KEY } from '../../src/lib/appConfig'
+import { createInitialProgress } from '../../src/lib/progressStorage'
 
 /**
  * Valide l'initialisation automatique et la persistance de la progression.
@@ -128,4 +129,91 @@ test('records a completed session with exercise details', async ({ page }) => {
   expect(session?.summary?.successes).toBeGreaterThan(0)
   expect(session?.summary?.errors).toBe(0)
   expect(session?.summary?.lettersPracticed?.length).toBeGreaterThan(0)
+})
+
+/**
+ * Verifie les informations principales du tableau de bord parent.
+ */
+test('shows parent dashboard with history details and reset action', async ({ page }) => {
+  const seededProgress = createInitialProgress('2026-05-30T10:00:00.000Z')
+
+  seededProgress.letters.N = {
+    ...seededProgress.letters.N,
+    status: 'known',
+    seenCount: 4,
+    successCount: 4,
+    successWithoutHelpCount: 4,
+  }
+  seededProgress.letters.A = {
+    ...seededProgress.letters.A,
+    status: 'learning',
+    seenCount: 2,
+    successCount: 1,
+    successWithoutHelpCount: 1,
+  }
+  seededProgress.letters.T = {
+    ...seededProgress.letters.T,
+    status: 'fragile',
+    seenCount: 3,
+    errorCount: 2,
+  }
+  seededProgress.sessions = [
+    {
+      id: 'session-plan-test',
+      startedAt: '2026-05-30T10:00:00.000Z',
+      endedAt: '2026-05-30T10:06:00.000Z',
+      durationSeconds: 360,
+      exercises: [
+        {
+          id: 'session-plan-test-exercise-1',
+          type: 'choice',
+          letter: 'N',
+          choices: ['N', 'A', 'T'],
+          scored: true,
+          success: true,
+          attempts: 1,
+          helped: false,
+          parentValidated: false,
+          startedAt: '2026-05-30T10:00:00.000Z',
+          completedAt: '2026-05-30T10:00:15.000Z',
+        },
+      ],
+      summary: {
+        successes: 1,
+        errors: 0,
+        helpedCount: 0,
+        lettersPracticed: ['N'],
+        fragileLetters: ['T'],
+        knownLetters: ['N'],
+      },
+    },
+  ]
+
+  await page.goto('/')
+  await page.evaluate(
+    ([storageKey, progressJson]) => {
+      window.localStorage.setItem(storageKey, progressJson)
+    },
+    [PROGRESS_STORAGE_KEY, JSON.stringify(seededProgress)],
+  )
+  await page.reload()
+  await page.locator('.actions .secondary-action').click()
+
+  await expect(page.getByRole('heading', { name: 'Tableau de bord' })).toBeVisible()
+  await expect(page.getByText('Seances')).toBeVisible()
+  await expect(page.getByText('Seance 1')).toBeVisible()
+  await expect(page.getByText('Detail de seance')).toBeVisible()
+  await expect(page.getByText('360s', { exact: true })).toBeVisible()
+  await expect(page.getByText('Connue', { exact: true })).toBeVisible()
+  await expect(page.getByText('Apprentissage', { exact: true })).toBeVisible()
+  await expect(page.getByText('Fragile', { exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Export JSON' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Import JSON' })).toBeVisible()
+
+  page.once('dialog', async (dialog) => {
+    await dialog.accept()
+  })
+  await page.getByRole('button', { name: 'Reinitialiser' }).click()
+  await expect(page.getByText('Progression reinitialisee.')).toBeVisible()
+  await expect(page.getByText('Aucune seance terminee pour le moment.')).toBeVisible()
 })

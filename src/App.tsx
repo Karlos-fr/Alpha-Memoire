@@ -5,8 +5,8 @@
  */
 
 import './App.css'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { getLetterCard, INITIAL_LETTER_CARDS } from './data/letters'
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
+import { getLetterCard, INITIAL_LETTER_CARDS, LETTER_ALPHABET } from './data/letters'
 import {
   recordError,
   recordExposure,
@@ -17,7 +17,10 @@ import { generateSessionPlan } from './features/session/sessionGenerator'
 import { useSpeech } from './hooks/useSpeech'
 import { CHILD_NAME, INITIAL_ACTIVE_LETTERS } from './lib/appConfig'
 import {
+  createInitialProgress,
   ensureStoredProgress,
+  exportProgressToJson,
+  importProgressFromJson,
   saveProgress,
   saveSession,
 } from './lib/progressStorage'
@@ -25,15 +28,18 @@ import type {
   AppProgress,
   ExerciseResult,
   ExerciseType,
+  LetterProgress,
+  LetterStatus,
   LetterSymbol,
   PlannedExercise,
+  SessionRecord,
   SessionPlan,
 } from './types'
 
 /**
  * Vue actuellement affichée par l'application.
  */
-type AppView = 'home' | 'session' | 'complete'
+type AppView = 'home' | 'session' | 'complete' | 'parent'
 
 /**
  * État transitoire du feedback enfant.
@@ -99,6 +105,7 @@ function App() {
   const hasTriedAutoSpeech = useRef(false)
   const sessionStartedAt = useRef<string | null>(null)
   const exerciseStartedAt = useRef<string | null>(null)
+  const importInputRef = useRef<HTMLInputElement | null>(null)
   const welcomeInstruction = `Bonjour ${CHILD_NAME}. Prêt pour la mission des lettres ?`
   const speech = useSpeech({
     defaultText: welcomeInstruction,
@@ -112,11 +119,17 @@ function App() {
   const [helped, setHelped] = useState(false)
   const [feedback, setFeedback] = useState<FeedbackState>('idle')
   const [isDebugSession, setIsDebugSession] = useState(false)
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null)
+  const [parentMessage, setParentMessage] = useState<string | null>(null)
 
   const currentExercise = sessionPlan?.exercises[currentExerciseIndex] ?? null
   const currentCard = currentExercise ? getLetterCard(currentExercise.letter) : null
   const completedCount = results.length
   const totalCount = sessionPlan?.exercises.length ?? 0
+  const selectedSession =
+    progress.sessions.find((session) => session.id === selectedSessionId) ??
+    progress.sessions.at(-1) ??
+    null
   const lastMessage = useMemo(() => {
     if (feedback === 'success') {
       return `Bravo ${CHILD_NAME} !`
@@ -178,6 +191,71 @@ function App() {
     setIsDebugSession(true)
     setView('session')
     speech.speak(nextPlan.exercises[0].prompt)
+  }
+
+  /**
+   * Ouvre l'espace parent avec les donnees les plus recentes.
+   */
+  function openParentDashboard() {
+    const storedProgress = ensureStoredProgress()
+
+    setProgress(storedProgress)
+    setSelectedSessionId(storedProgress.sessions.at(-1)?.id ?? null)
+    setParentMessage(null)
+    setView('parent')
+  }
+
+  /**
+   * Exporte la progression complete au format JSON.
+   */
+  function handleExportProgress() {
+    const json = exportProgressToJson(progress)
+    const blob = new Blob([json], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+
+    link.href = url
+    link.download = `alpha-memoire-${CHILD_NAME.toLowerCase()}-progression.json`
+    link.click()
+    URL.revokeObjectURL(url)
+    setParentMessage('Export JSON pret.')
+  }
+
+  /**
+   * Importe un fichier JSON choisi par le parent.
+   */
+  async function handleImportProgress(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+
+    if (!file) {
+      return
+    }
+
+    try {
+      const nextProgress = importProgressFromJson(await file.text())
+      setProgress(nextProgress)
+      setSelectedSessionId(nextProgress.sessions.at(-1)?.id ?? null)
+      setParentMessage('Import JSON termine.')
+    } catch (error) {
+      setParentMessage(error instanceof Error ? error.message : 'Import JSON impossible.')
+    } finally {
+      event.target.value = ''
+    }
+  }
+
+  /**
+   * Reinitialise la progression apres confirmation explicite.
+   */
+  function handleResetProgress() {
+    if (!window.confirm('Reinitialiser toute la progression de Nathan ?')) {
+      return
+    }
+
+    const nextProgress = saveProgress(createInitialProgress())
+
+    setProgress(nextProgress)
+    setSelectedSessionId(null)
+    setParentMessage('Progression reinitialisee.')
   }
 
   /**
@@ -449,6 +527,125 @@ function App() {
     )
   }
 
+  if (view === 'parent') {
+    const knownLetters = getLettersByStatus(progress, 'known')
+    const learningLetters = getLettersByStatus(progress, 'learning')
+    const fragileLetters = getLettersByStatus(progress, 'fragile')
+    const lastSession = progress.sessions.at(-1) ?? null
+
+    return (
+      <main className="app-shell parent-shell">
+        <section className="parent-view" aria-labelledby="parent-title">
+          <header className="parent-header">
+            <div>
+              <p className="eyebrow">Espace parent</p>
+              <h1 id="parent-title">Tableau de bord</h1>
+            </div>
+            <div className="parent-nav">
+              <button type="button" className="secondary-action" onClick={() => setView('home')}>
+                Espace enfant
+              </button>
+              <button type="button" className="voice-action" onClick={handleExportProgress}>
+                Export JSON
+              </button>
+              <button
+                type="button"
+                className="secondary-action"
+                onClick={() => importInputRef.current?.click()}
+              >
+                Import JSON
+              </button>
+              <button type="button" className="danger-action" onClick={handleResetProgress}>
+                Reinitialiser
+              </button>
+              <input
+                ref={importInputRef}
+                className="hidden-file-input"
+                type="file"
+                accept="application/json,.json"
+                onChange={handleImportProgress}
+              />
+            </div>
+          </header>
+
+          {parentMessage && (
+            <p className="parent-message" role="status">
+              {parentMessage}
+            </p>
+          )}
+
+          <div className="parent-summary">
+            <ParentMetric label="Seances" value={progress.sessions.length.toString()} />
+            <ParentMetric label="Derniere seance" value={formatDate(lastSession?.endedAt)} />
+            <ParentMetric label="Connues" value={knownLetters.length.toString()} />
+            <ParentMetric label="Fragiles" value={fragileLetters.length.toString()} />
+          </div>
+
+          <div className="parent-columns">
+            <section className="parent-section" aria-labelledby="status-title">
+              <h2 id="status-title">Progression lettres</h2>
+              <div className="letter-status-groups">
+                <LetterGroup title="Connues" letters={knownLetters} emptyLabel="Aucune" />
+                <LetterGroup
+                  title="En apprentissage"
+                  letters={learningLetters}
+                  emptyLabel="Aucune"
+                />
+                <LetterGroup title="Fragiles" letters={fragileLetters} emptyLabel="Aucune" />
+              </div>
+              <div className="letter-progress-grid">
+                {LETTER_ALPHABET.map((letter) => (
+                  <LetterProgressTile
+                    key={letter}
+                    progress={progress.letters[letter]}
+                  />
+                ))}
+              </div>
+            </section>
+
+            <section className="parent-section" aria-labelledby="history-title">
+              <h2 id="history-title">Historique</h2>
+              {progress.sessions.length === 0 ? (
+                <p className="empty-state">Aucune seance terminee pour le moment.</p>
+              ) : (
+                <div className="session-history">
+                  {progress.sessions
+                    .slice()
+                    .reverse()
+                    .map((session, index) => (
+                      <button
+                        type="button"
+                        key={session.id}
+                        className={`session-history-item ${
+                          selectedSession?.id === session.id ? 'is-selected' : ''
+                        }`}
+                        onClick={() => setSelectedSessionId(session.id)}
+                      >
+                        <span>Seance {progress.sessions.length - index}</span>
+                        <span>{formatDate(session.endedAt)}</span>
+                        <span>
+                          {session.exercises.length} ex. / {session.durationSeconds}s
+                        </span>
+                      </button>
+                    ))}
+                </div>
+              )}
+            </section>
+          </div>
+
+          <section className="parent-section" aria-labelledby="session-detail-title">
+            <h2 id="session-detail-title">Detail de seance</h2>
+            {selectedSession ? (
+              <SessionDetail session={selectedSession} />
+            ) : (
+              <p className="empty-state">Selectionne une seance pour voir le detail.</p>
+            )}
+          </section>
+        </section>
+      </main>
+    )
+  }
+
   return (
     <main className="app-shell">
       <section className="hero" aria-labelledby="app-title">
@@ -466,7 +663,7 @@ function App() {
             <button type="button" className="primary-action" onClick={startSession}>
               Démarrer une séance
             </button>
-            <button type="button" className="secondary-action">
+            <button type="button" className="secondary-action" onClick={openParentDashboard}>
               Espace parent
             </button>
             <button
@@ -614,6 +811,84 @@ function MissionCompanion({ mood }: { mood: CompanionMood }) {
 }
 
 /**
+ * Indicateur synthetique de l'espace parent.
+ */
+function ParentMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="parent-metric">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  )
+}
+
+/**
+ * Liste compacte de lettres par statut.
+ */
+function LetterGroup({
+  title,
+  letters,
+  emptyLabel,
+}: {
+  title: string
+  letters: LetterProgress[]
+  emptyLabel: string
+}) {
+  return (
+    <div className="letter-group">
+      <p>{title}</p>
+      <div>
+        {letters.length > 0
+          ? letters.map((progress) => <span key={progress.letter}>{progress.letter}</span>)
+          : emptyLabel}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Carte compacte d'une lettre dans le tableau de bord.
+ */
+function LetterProgressTile({ progress }: { progress: LetterProgress }) {
+  return (
+    <div className={`letter-progress-tile ${progress.status}`}>
+      <strong>{progress.letter}</strong>
+      <span>{getStatusLabel(progress.status)}</span>
+      <small>
+        {progress.successWithoutHelpCount} ok / {progress.errorCount} err.
+      </small>
+    </div>
+  )
+}
+
+/**
+ * Detail lisible d'une seance sauvegardee.
+ */
+function SessionDetail({ session }: { session: SessionRecord }) {
+  return (
+    <div className="session-detail">
+      <div className="session-detail-summary">
+        <span>{formatDate(session.startedAt)}</span>
+        <span>{session.durationSeconds}s</span>
+        <span>{session.summary.successes} reussites</span>
+        <span>{session.summary.helpedCount} aides</span>
+      </div>
+      <div className="exercise-detail-list">
+        {session.exercises.map((exercise, index) => (
+          <div key={exercise.id} className="exercise-detail-row">
+            <span>{index + 1}</span>
+            <strong>{exercise.letter}</strong>
+            <span>{getExerciseTypeLabel(exercise.type)}</span>
+            <span>{exercise.attempts} essai(s)</span>
+            <span>{exercise.helped ? 'Aide' : 'Autonome'}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/**
  * Masque la lettre cible dans les consignes visuelles de reconnaissance.
  */
 function getDisplayedPrompt(exercise: PlannedExercise) {
@@ -629,6 +904,56 @@ function getDisplayedPrompt(exercise: PlannedExercise) {
  */
 function hidesTargetText(exercise: PlannedExercise) {
   return exercise.type === 'recognition' || exercise.type === 'choice'
+}
+
+/**
+ * Recupere les lettres d'un statut donne dans l'ordre alphabetique.
+ */
+function getLettersByStatus(progress: AppProgress, status: LetterStatus) {
+  return LETTER_ALPHABET.map((letter) => progress.letters[letter]).filter(
+    (letterProgress): letterProgress is LetterProgress =>
+      Boolean(letterProgress) && letterProgress.status === status,
+  )
+}
+
+/**
+ * Formate une date sauvegardee pour un affichage parent compact.
+ */
+function formatDate(value: string | undefined) {
+  if (!value) {
+    return 'Aucune'
+  }
+
+  return new Intl.DateTimeFormat('fr-FR', {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  }).format(new Date(value))
+}
+
+/**
+ * Libelle parent d'un statut de lettre.
+ */
+function getStatusLabel(status: LetterStatus) {
+  if (status === 'known') {
+    return 'Connue'
+  }
+
+  if (status === 'fragile') {
+    return 'Fragile'
+  }
+
+  if (status === 'learning') {
+    return 'Apprentissage'
+  }
+
+  return 'Nouvelle'
+}
+
+/**
+ * Libelle parent d'un type d'exercice.
+ */
+function getExerciseTypeLabel(type: ExerciseType) {
+  return DEBUG_EXERCISE_LABELS[type]
 }
 
 /**

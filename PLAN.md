@@ -134,19 +134,19 @@
 
 ## Phase 11 - Tableau de bord parent
 
-- [ ] Créer une route ou vue parent.
-- [ ] Ajouter une navigation entre espace enfant et espace parent.
-- [ ] Afficher le nombre total de séances.
-- [ ] Afficher la date de la dernière séance.
-- [ ] Afficher les lettres connues.
-- [ ] Afficher les lettres en apprentissage.
-- [ ] Afficher les lettres fragiles.
-- [ ] Afficher une carte de progression par lettre.
-- [ ] Afficher l'historique séance par séance.
-- [ ] Afficher le détail d'une séance sélectionnée.
-- [ ] Ajouter le bouton export JSON.
-- [ ] Ajouter le bouton import JSON.
-- [ ] Ajouter un bouton de réinitialisation avec confirmation.
+- [x] Créer une route ou vue parent.
+- [x] Ajouter une navigation entre espace enfant et espace parent.
+- [x] Afficher le nombre total de séances.
+- [x] Afficher la date de la dernière séance.
+- [x] Afficher les lettres connues.
+- [x] Afficher les lettres en apprentissage.
+- [x] Afficher les lettres fragiles.
+- [x] Afficher une carte de progression par lettre.
+- [x] Afficher l'historique séance par séance.
+- [x] Afficher le détail d'une séance sélectionnée.
+- [x] Ajouter le bouton export JSON.
+- [x] Ajouter le bouton import JSON.
+- [x] Ajouter un bouton de réinitialisation avec confirmation.
 
 ## Phase 12 - Adaptation séance après séance
 
