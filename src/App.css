@@ -481,6 +481,13 @@ button:focus-visible {
   font-size: clamp(1.45rem, 3vw, 2.1rem);
 }
 
+.parent-metric.is-date-metric strong {
+  max-width: 100%;
+  font-size: clamp(1.25rem, 2.15vw, 1.75rem);
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+
 .parent-columns {
   grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.7fr);
 }

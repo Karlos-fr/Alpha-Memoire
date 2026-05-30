@@ -815,8 +815,12 @@ function MissionCompanion({ mood }: { mood: CompanionMood }) {
  * Indicateur synthetique de l'espace parent.
  */
 function ParentMetric({ label, value }: { label: string; value: string }) {
+  const metricClassName = label === 'Derniere seance'
+    ? 'parent-metric is-date-metric'
+    : 'parent-metric'
+
   return (
-    <div className="parent-metric">
+    <div className={metricClassName}>
       <span>{label}</span>
       <strong>{value}</strong>
     </div>
