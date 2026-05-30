@@ -80,6 +80,28 @@ button {
   background: #d9eef5;
 }
 
+.voice-action {
+  color: #193024;
+  background: #d9f2de;
+}
+
+.spoken-instruction,
+.speech-fallback {
+  max-width: 650px;
+  margin: 0;
+  color: #31435a;
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+.spoken-instruction {
+  font-weight: 800;
+}
+
+.speech-fallback {
+  color: #6b3f14;
+}
+
 .letter-preview {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

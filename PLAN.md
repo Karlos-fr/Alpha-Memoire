@@ -77,16 +77,16 @@
 
 ## Phase 7 - Synthèse vocale
 
-- [ ] Créer un hook ou service `useSpeech`.
-- [ ] Détecter si `speechSynthesis` est disponible.
-- [ ] Sélectionner une voix française si possible.
-- [ ] Créer une fonction `speak(text)`.
-- [ ] Créer une fonction `stopSpeaking`.
-- [ ] Ajouter un réglage de vitesse de parole.
-- [ ] Ajouter un réglage de volume.
-- [ ] Lire les consignes automatiquement.
-- [ ] Ajouter un bouton pour répéter la consigne.
-- [ ] Afficher la consigne à l'écran si la synthèse vocale n'est pas disponible.
+- [x] Créer un hook ou service `useSpeech`.
+- [x] Détecter si `speechSynthesis` est disponible.
+- [x] Sélectionner une voix française si possible.
+- [x] Créer une fonction `speak(text)`.
+- [x] Créer une fonction `stopSpeaking`.
+- [x] Ajouter un réglage de vitesse de parole.
+- [x] Ajouter un réglage de volume.
+- [x] Lire les consignes automatiquement.
+- [x] Ajouter un bouton pour répéter la consigne.
+- [x] Afficher la consigne à l'écran si la synthèse vocale n'est pas disponible.
 
 ## Phase 8 - Interface enfant
 
