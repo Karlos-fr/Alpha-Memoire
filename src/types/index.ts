@@ -13,5 +13,7 @@ export type {
   LetterProgress,
   LetterStatus,
   LetterSymbol,
+  PlannedExercise,
   SessionRecord,
+  SessionPlan,
 } from './learning'

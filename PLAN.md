@@ -62,18 +62,18 @@
 
 ## Phase 6 - Générateur de séance
 
-- [ ] Créer une fonction `generateSessionPlan`.
-- [ ] Lire la progression actuelle avant de générer la séance.
-- [ ] Générer 8 à 10 exercices par séance.
-- [ ] Limiter la séance à 12 exercices maximum.
-- [ ] Utiliser 3 à 5 lettres différentes au départ.
-- [ ] Démarrer par 1 ou 2 exercices faciles.
-- [ ] Prioriser les lettres fragiles.
-- [ ] Ajouter des lettres en apprentissage.
-- [ ] Ajouter une petite part de lettres connues en révision.
-- [ ] Ajouter 0 ou 1 nouvelle lettre maximum par séance.
-- [ ] Ne pas ajouter de nouvelle lettre si trop de lettres sont fragiles.
-- [ ] Construire une séance différente à chaque génération.
+- [x] Créer une fonction `generateSessionPlan`.
+- [x] Lire la progression actuelle avant de générer la séance.
+- [x] Générer 8 à 10 exercices par séance.
+- [x] Limiter la séance à 12 exercices maximum.
+- [x] Utiliser 3 à 5 lettres différentes au départ.
+- [x] Démarrer par 1 ou 2 exercices faciles.
+- [x] Prioriser les lettres fragiles.
+- [x] Ajouter des lettres en apprentissage.
+- [x] Ajouter une petite part de lettres connues en révision.
+- [x] Ajouter 0 ou 1 nouvelle lettre maximum par séance.
+- [x] Ne pas ajouter de nouvelle lettre si trop de lettres sont fragiles.
+- [x] Construire une séance différente à chaque génération.
 
 ## Phase 7 - Synthèse vocale
 

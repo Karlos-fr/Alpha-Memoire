@@ -77,6 +77,28 @@ export interface ExerciseResult {
 }
 
 /**
+ * Exercice prévu par le générateur de séance.
+ */
+export interface PlannedExercise {
+  id: string
+  type: ExerciseType
+  letter: LetterSymbol
+  choices: LetterSymbol[]
+  prompt: string
+}
+
+/**
+ * Séance prévue avant interaction avec l'enfant.
+ */
+export interface SessionPlan {
+  id: string
+  exercises: PlannedExercise[]
+  letters: LetterSymbol[]
+  introducedLetters: LetterSymbol[]
+  createdAt: string
+}
+
+/**
  * Enregistrement complet d'une séance terminée.
  */
 export interface SessionRecord {
