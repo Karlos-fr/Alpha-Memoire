@@ -18,12 +18,12 @@ dist/
 Public URL:
 
 ```text
-https://karlos-fr.github.io/Alpha-M-moire/
+https://karlos-fr.github.io/Alpha-Memoire/
 ```
 
-The production build uses the `/Alpha-M-moire/` base path so public assets are
+The production build uses the `/Alpha-Memoire/` base path so public assets are
 loaded from:
 
 ```text
-https://karlos-fr.github.io/Alpha-M-moire/assets/
+https://karlos-fr.github.io/Alpha-Memoire/assets/
 ```
