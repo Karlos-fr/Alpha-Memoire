@@ -14,9 +14,8 @@ export type LetterStatus = 'new' | 'learning' | 'fragile' | 'known'
  * Type d'exercice proposé pendant une séance.
  */
 export type ExerciseType =
-  | 'discovery'
-  | 'recognition'
-  | 'choice'
+  | 'twoChoice'
+  | 'threeChoice'
   | 'association'
   | 'naming'
 

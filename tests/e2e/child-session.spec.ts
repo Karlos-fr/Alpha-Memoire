@@ -88,7 +88,7 @@ test('keeps session counter on current card during feedback transition', async (
  */
 test('starts a debug exercise mode from home', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Choix' }).click()
+  await page.getByRole('button', { name: 'Choix 3 lettres' }).click()
 
   await expect(page.getByText('Debug')).toBeVisible()
   await expect(page.locator('.exercise-stage .letter-image-prompt')).toBeVisible()

@@ -166,7 +166,7 @@ test('shows parent dashboard with history details and reset action', async ({ pa
       exercises: [
         {
           id: 'session-plan-test-exercise-1',
-          type: 'choice',
+          type: 'threeChoice',
           letter: 'N',
           choices: ['N', 'A', 'T'],
           scored: true,

@@ -7,6 +7,7 @@
 import './App.css'
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { getLetterCard, INITIAL_LETTER_CARDS, LETTER_ALPHABET } from './data/letters'
+import { getRandomSpeechPhrase } from './data/speechPhrases'
 import {
   recordError,
   recordExposure,
@@ -80,9 +81,8 @@ const PRAISE_TRANSITION_MS = 1800
  * Modes d'exercices exposés dans le panneau de test parent.
  */
 const DEBUG_EXERCISE_TYPES = [
-  'discovery',
-  'recognition',
-  'choice',
+  'twoChoice',
+  'threeChoice',
   'association',
   'naming',
 ] as const satisfies readonly ExerciseType[]
@@ -91,9 +91,8 @@ const DEBUG_EXERCISE_TYPES = [
  * Libellés courts du panneau debug.
  */
 const DEBUG_EXERCISE_LABELS: Record<ExerciseType, string> = {
-  discovery: 'Découverte',
-  recognition: 'Reconnaissance',
-  choice: 'Choix',
+  twoChoice: 'Choix 2 lettres',
+  threeChoice: 'Choix 3 lettres',
   association: 'Association',
   naming: 'Nommer',
 }
@@ -106,7 +105,7 @@ function App() {
   const sessionStartedAt = useRef<string | null>(null)
   const exerciseStartedAt = useRef<string | null>(null)
   const importInputRef = useRef<HTMLInputElement | null>(null)
-  const welcomeInstruction = `Bonjour ${CHILD_NAME}. Prêt pour la mission des lettres ?`
+  const [welcomeInstruction] = useState(() => getRandomSpeechPhrase('welcome'))
   const speech = useSpeech({
     defaultText: welcomeInstruction,
   })
@@ -121,6 +120,7 @@ function App() {
   const [isDebugSession, setIsDebugSession] = useState(false)
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null)
   const [parentMessage, setParentMessage] = useState<string | null>(null)
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
 
   const currentExercise = sessionPlan?.exercises[currentExerciseIndex] ?? null
   const currentCard = currentExercise ? getLetterCard(currentExercise.letter) : null
@@ -131,24 +131,28 @@ function App() {
     null
   const lastMessage = useMemo(() => {
     if (feedback === 'success') {
-      return `Bravo ${CHILD_NAME} !`
+      return feedbackMessage ?? getRandomSpeechPhrase('praise')
     }
 
     if (feedback === 'help') {
-      return 'Regardons ensemble.'
+      return feedbackMessage ?? getRandomSpeechPhrase('help')
     }
 
     return currentExercise ? getDisplayedPrompt(currentExercise) : welcomeInstruction
-  }, [currentExercise, feedback, welcomeInstruction])
+  }, [currentExercise, feedback, feedbackMessage, welcomeInstruction])
 
   useEffect(() => {
     if (hasTriedAutoSpeech.current) {
       return
     }
 
+    if (speech.isSupported && !speech.voicesLoaded) {
+      return
+    }
+
     hasTriedAutoSpeech.current = true
     speech.speak(welcomeInstruction)
-  }, [speech, welcomeInstruction])
+  }, [speech, speech.voicesLoaded, welcomeInstruction])
 
   /**
    * Lance une nouvelle séance enfant.
@@ -166,6 +170,7 @@ function App() {
     setAttempts(0)
     setHelped(false)
     setFeedback('idle')
+    setFeedbackMessage(null)
     setIsDebugSession(false)
     setView('session')
     speech.speak(nextPlan.exercises[0]?.prompt ?? welcomeInstruction)
@@ -187,6 +192,7 @@ function App() {
     setAttempts(0)
     setHelped(false)
     setFeedback('idle')
+    setFeedbackMessage(null)
     setIsDebugSession(true)
     setView('session')
     speech.speak(nextPlan.exercises[0].prompt)
@@ -270,10 +276,12 @@ function App() {
 
     if (choice !== currentExercise.letter) {
       const nextProgress = updateLetterProgress(progress, currentExercise, 'error')
+      const helpMessage = getRandomSpeechPhrase('help')
       setProgress(nextProgress)
       setHelped(true)
       setFeedback('help')
-      speech.speak(`Presque ${CHILD_NAME}. Regarde avec moi.`)
+      setFeedbackMessage(helpMessage)
+      speech.speak(helpMessage)
       return
     }
 
@@ -336,6 +344,7 @@ function App() {
       options.outcome ?? (usedHelp ? 'successWithHelp' : 'successWithoutHelp')
     const shouldPraise = options.shouldPraise ?? true
     const completedAt = new Date().toISOString()
+    const praiseMessage = shouldPraise ? getRandomSpeechPhrase('praise') : null
     const nextProgress = isDebugSession
       ? progress
       : updateLetterProgress(progress, exercise, outcome)
@@ -357,9 +366,10 @@ function App() {
     setProgress(nextProgress)
     setResults(nextResults)
     setFeedback(shouldPraise ? 'success' : 'idle')
+    setFeedbackMessage(praiseMessage)
 
-    if (shouldPraise) {
-      speech.speak(`Bravo ${CHILD_NAME} !`)
+    if (praiseMessage) {
+      speech.speak(praiseMessage)
     }
 
     window.setTimeout(() => {
@@ -374,6 +384,7 @@ function App() {
       setAttempts(0)
       setHelped(false)
       setFeedback('idle')
+      setFeedbackMessage(null)
       exerciseStartedAt.current = new Date().toISOString()
       speech.speak(sessionPlan.exercises[nextIndex].prompt)
     }, shouldPraise ? PRAISE_TRANSITION_MS : QUICK_TRANSITION_MS)
@@ -421,7 +432,7 @@ function App() {
 
     setProgress(storedProgress)
     setView('complete')
-    speech.speak(`Bravo ${CHILD_NAME}, mission terminée.`)
+    speech.speak(getRandomSpeechPhrase('sessionComplete'))
   }
 
   /**
@@ -484,6 +495,25 @@ function App() {
                 src={currentCard.image.src}
                 alt={currentCard.image.alt}
               />
+            ) : (currentExercise.type === 'association' ||
+                currentExercise.type === 'naming') &&
+              currentCard ? (
+              <div className="association-content">
+                <div className="association-letter-stack">
+                  <h1 id="exercise-title" className="exercise-letter">
+                    {currentExercise.letter}
+                  </h1>
+                  <div className="letter-word">
+                    <span className="letter-visual">{currentCard.temporaryVisual}</span>
+                    <span>{currentCard.word}</span>
+                  </div>
+                </div>
+                <img
+                  className="letter-association-image"
+                  src={currentCard.image.src}
+                  alt={currentCard.image.alt}
+                />
+              </div>
             ) : (
               <>
                 <h1 id="exercise-title" className="exercise-letter">
@@ -721,7 +751,7 @@ function App() {
    * Affiche les contrôles attendus pour le type d'exercice courant.
    */
   function renderExerciseControls(exercise: PlannedExercise) {
-    if (exercise.type === 'discovery' || exercise.type === 'association') {
+    if (exercise.type === 'association') {
       return (
         <div className="exercise-actions">
           <button type="button" className="primary-action" onClick={handleContinue}>
@@ -1024,7 +1054,7 @@ function getDisplayedPrompt(exercise: PlannedExercise) {
  * Indique les exercices où l'écran ne doit pas donner la réponse par écrit.
  */
 function hidesTargetText(exercise: PlannedExercise) {
-  return exercise.type === 'recognition' || exercise.type === 'choice'
+  return exercise.type === 'twoChoice' || exercise.type === 'threeChoice'
 }
 
 /**
@@ -1073,7 +1103,19 @@ function getStatusLabel(status: LetterStatus) {
 /**
  * Libelle parent d'un type d'exercice.
  */
-function getExerciseTypeLabel(type: ExerciseType) {
+function getExerciseTypeLabel(type: ExerciseType | 'recognition' | 'choice' | 'discovery') {
+  if (type === 'discovery') {
+    return 'Association'
+  }
+
+  if (type === 'recognition') {
+    return 'Choix 2 lettres'
+  }
+
+  if (type === 'choice') {
+    return 'Choix 3 lettres'
+  }
+
   return DEBUG_EXERCISE_LABELS[type]
 }
 
@@ -1106,11 +1148,11 @@ function createDebugSessionPlan(type: ExerciseType): SessionPlan {
  * Fournit des choix fixes pour rendre le debug prévisible.
  */
 function getDebugChoices(type: ExerciseType, letter: LetterSymbol) {
-  if (type === 'recognition') {
+  if (type === 'twoChoice') {
     return [letter, 'N']
   }
 
-  if (type === 'choice') {
+  if (type === 'threeChoice') {
     return ['N', letter, 'A']
   }
 
@@ -1125,7 +1167,7 @@ function getDebugPrompt(
   letter: LetterSymbol,
   associationPrompt?: string,
 ) {
-  if (type === 'discovery' || type === 'association') {
+  if (type === 'association') {
     return associationPrompt ?? `${letter} comme ${letter}`
   }
 

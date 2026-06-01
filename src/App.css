@@ -336,6 +336,30 @@ button:focus-visible {
   font-size: clamp(7rem, 24vw, 14rem);
 }
 
+.association-content {
+  width: min(100%, 680px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(160px, 240px);
+  gap: clamp(18px, 4vw, 34px);
+  align-items: center;
+}
+
+.association-letter-stack {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+}
+
+.letter-association-image {
+  width: min(100%, 240px);
+  aspect-ratio: 1;
+  display: block;
+  border-radius: 8px;
+  object-fit: contain;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 12px 28px rgba(24, 40, 59, 0.1);
+}
+
 .letter-word {
   display: inline-flex;
   min-height: 54px;
@@ -826,6 +850,16 @@ button:focus-visible {
 
   .letter-image-prompt {
     width: min(100%, 300px);
+  }
+
+  .association-content {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .letter-association-image {
+    width: min(100%, 220px);
+    justify-self: center;
   }
 
   .parent-header,

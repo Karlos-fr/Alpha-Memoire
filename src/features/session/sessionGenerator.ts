@@ -122,7 +122,7 @@ function buildExercises(
   const weightedLetters = getWeightedLetters(progress, letters, context)
 
   easyLetters.slice(0, 2).forEach((letter, index) => {
-    exercises.push(createPlannedExercise(index, 'recognition', letter, letters, random))
+    exercises.push(createPlannedExercise(index, 'twoChoice', letter, letters, random))
   })
 
   letters
@@ -133,6 +133,18 @@ function buildExercises(
         exercises.push(createPlannedExercise(exercises.length, type, letter, letters, random))
       }
     })
+
+  const namingLetter = letters.find((letter) =>
+    isReadyForNaming(progress.letters[letter], context),
+  )
+
+  if (
+    namingLetter &&
+    exercises.length < targetCount &&
+    !exercises.some((exercise) => exercise.type === 'naming')
+  ) {
+    exercises.push(createPlannedExercise(exercises.length, 'naming', namingLetter, letters, random))
+  }
 
   while (exercises.length < targetCount) {
     const letter = weightedLetters[exercises.length % weightedLetters.length]
@@ -329,22 +341,22 @@ function getExerciseType(
   context: SessionAdaptationContext,
 ): ExerciseType {
   if (!progress || progress.status === 'new') {
-    return index % 2 === 0 ? 'discovery' : 'recognition'
+    return index % 2 === 0 ? 'association' : 'twoChoice'
   }
 
   if (context.recentProblemLetters.includes(progress.letter)) {
-    return index % 2 === 0 ? 'association' : 'recognition'
+    return index % 2 === 0 ? 'association' : 'twoChoice'
   }
 
   if (isReadyForNaming(progress, context)) {
-    return index % 4 === 0 ? 'naming' : 'choice'
+    return index % 4 === 0 ? 'naming' : 'threeChoice'
   }
 
   if (progress.status === 'fragile') {
-    return index % 3 === 0 ? 'association' : 'choice'
+    return index % 3 === 0 ? 'association' : 'threeChoice'
   }
 
-  return index % 3 === 0 ? 'association' : 'choice'
+  return index % 3 === 0 ? 'association' : 'threeChoice'
 }
 
 /**
@@ -424,10 +436,10 @@ function isReadyForNaming(
   context: SessionAdaptationContext,
 ) {
   return (
-    progress.status === 'known' &&
-    progress.successWithoutHelpCount >= 4 &&
-    progress.currentStreak >= 4 &&
-    progress.knownSessionCount >= 2 &&
+    (progress.status === 'learning' || progress.status === 'known') &&
+    progress.successWithoutHelpCount >= 3 &&
+    progress.currentStreak >= 3 &&
+    progress.knownSessionCount >= 1 &&
     !context.recentProblemLetters.includes(progress.letter)
   )
 }
@@ -438,11 +450,11 @@ function getChoices(
   sessionLetters: LetterSymbol[],
   random: () => number,
 ) {
-  if (type === 'discovery' || type === 'association' || type === 'naming') {
+  if (type === 'association' || type === 'naming') {
     return [letter]
   }
 
-  const choiceCount = type === 'recognition' ? 2 : 3
+  const choiceCount = type === 'twoChoice' ? 2 : 3
   const distractors = shuffle(
     sessionLetters.filter((candidate) => candidate !== letter),
     random,
@@ -455,7 +467,7 @@ function getChoices(
  * Crée la consigne textuelle d'un exercice.
  */
 function getPrompt(type: ExerciseType, letter: LetterSymbol) {
-  if (type === 'discovery' || type === 'association') {
+  if (type === 'association') {
     return getLetterCard(letter)?.audioText ?? `${letter} comme ${letter}`
   }
 

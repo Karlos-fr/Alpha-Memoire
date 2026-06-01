@@ -27,6 +27,7 @@ export interface UseSpeechOptions {
 export interface UseSpeechResult {
   isSupported: boolean
   isSpeaking: boolean
+  voicesLoaded: boolean
   voice: SpeechSynthesisVoice | null
   settings: SpeechSettings
   speak: (text?: string) => boolean
@@ -42,6 +43,7 @@ export interface UseSpeechResult {
 export function useSpeech(options: UseSpeechOptions = {}): UseSpeechResult {
   const defaultText = options.defaultText ?? ''
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([])
+  const [voicesLoaded, setVoicesLoaded] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [settings, setSettings] = useState(() =>
     normalizeSpeechSettings(options.settings ?? DEFAULT_SPEECH_SETTINGS),
@@ -59,6 +61,7 @@ export function useSpeech(options: UseSpeechOptions = {}): UseSpeechResult {
     const speechSynthesis = window.speechSynthesis
     const loadVoices = () => {
       setVoices(speechSynthesis.getVoices())
+      setVoicesLoaded(true)
     }
 
     loadVoices()
@@ -125,6 +128,7 @@ export function useSpeech(options: UseSpeechOptions = {}): UseSpeechResult {
     () => ({
       isSupported,
       isSpeaking,
+      voicesLoaded,
       voice,
       settings,
       speak,
@@ -143,6 +147,7 @@ export function useSpeech(options: UseSpeechOptions = {}): UseSpeechResult {
       speak,
       stopSpeaking,
       voice,
+      voicesLoaded,
     ],
   )
 }

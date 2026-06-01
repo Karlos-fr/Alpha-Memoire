@@ -64,7 +64,7 @@ function createSession(letter: string, overrides: Partial<SessionRecord['exercis
     exercises: [
       {
         id: `exercise-${letter}`,
-        type: 'choice',
+        type: 'threeChoice',
         letter,
         choices: [letter, 'N', 'A'],
         scored: true,
@@ -103,14 +103,14 @@ describe('sessionGenerator', () => {
     expect(plan.introducedLetters).toEqual([])
   })
 
-  it('starts with easy recognition exercises', () => {
+  it('starts with easy two-choice exercises', () => {
     const plan = generateSessionPlan(createInitialProgress(NOW), {
       now: NOW,
       random: stableRandom,
     })
 
-    expect(plan.exercises[0].type).toBe('recognition')
-    expect(plan.exercises[1].type).toBe('recognition')
+    expect(plan.exercises[0].type).toBe('twoChoice')
+    expect(plan.exercises[1].type).toBe('twoChoice')
     expect(plan.exercises[0].choices.length).toBe(2)
   })
 
@@ -279,19 +279,42 @@ describe('sessionGenerator', () => {
     expect(plan.letters).toContain('N')
   })
 
-  it('does not propose naming before recognition is stable across sessions', () => {
-    const stableInOneSession = createInitialProgress(NOW).activeLetters.reduce(
+  it('adds a naming exercise when two-choice recognition is stable enough', () => {
+    const progress = withLetter(createInitialProgress(NOW), 'N', {
+      status: 'learning',
+      successWithoutHelpCount: 3,
+      currentStreak: 3,
+      knownSessionCount: 1,
+      successfulSessionIds: ['session-1'],
+      lastSeenAt: '2026-05-30T11:00:00.000Z',
+    })
+    const plan = generateSessionPlan(progress, {
+      now: NOW,
+      random: stableRandom,
+    })
+
+    expect(plan.exercises).toContainEqual(
+      expect.objectContaining({
+        type: 'naming',
+        letter: 'N',
+        prompt: "Tu te rappelles comment elle s'appelle ?",
+      }),
+    )
+  })
+
+  it('does not propose naming before two-choice recognition is stable', () => {
+    const unstableProgress = createInitialProgress(NOW).activeLetters.reduce(
       (progress, letter) =>
         withLetter(progress, letter, {
-          status: 'known',
-          successWithoutHelpCount: 5,
-          currentStreak: 4,
+          status: 'learning',
+          successWithoutHelpCount: 2,
+          currentStreak: 2,
           knownSessionCount: 1,
           lastSeenAt: '2026-05-30T11:00:00.000Z',
         }),
       createInitialProgress(NOW),
     )
-    const plan = generateSessionPlan(stableInOneSession, {
+    const plan = generateSessionPlan(unstableProgress, {
       now: NOW,
       random: stableRandom,
     })

@@ -15,7 +15,7 @@
 ## Phase 2 - Modèles TypeScript
 
 - [x] Créer le type `LetterStatus` : `new`, `learning`, `fragile`, `known`.
-- [x] Créer le type `ExerciseType` : `discovery`, `recognition`, `choice`, `association`, `naming`.
+- [x] Créer le type `ExerciseType` : `twoChoice`, `threeChoice`, `association`, `naming`.
 - [x] Créer le type `LetterCard` pour décrire une lettre, son mot, son image et sa phrase audio.
 - [x] Créer le type `LetterProgress` pour stocker la progression d'une lettre.
 - [x] Créer le type `ExerciseResult` pour stocker le résultat d'un exercice.
