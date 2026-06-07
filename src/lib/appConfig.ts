@@ -34,3 +34,5 @@ export const APP_PROGRESS_VERSION = 1
  * Clé unique utilisée dans localStorage pour la progression de Nathan.
  */
 export const PROGRESS_STORAGE_KEY = 'alpha-memoire:nathan:progress:v1'
+
+export const SHOW_IMAGES_STORAGE_KEY = 'alpha-memoire:nathan:show-images:v1'

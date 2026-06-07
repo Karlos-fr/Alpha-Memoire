@@ -19,6 +19,8 @@ répétition, de consignes simples et d'un cadre sans mise en échec.
   que l'écran donne la réponse.
 - Espace parent avec statistiques, historique, détail des séances et graphiques.
 - Export, import et réinitialisation de la progression au format JSON.
+- Option parent pour masquer les images pendant les exercices, enregistrée dans
+  le navigateur.
 - Mode debug depuis l'accueil pour tester rapidement chaque type d'exercice.
 - Sauvegarde entièrement locale via `localStorage`, sans serveur applicatif.
 
@@ -181,6 +183,10 @@ L'espace parent affiche :
 Les boutons `Export JSON`, `Import JSON` et `Reinitialiser` permettent de gérer
 la sauvegarde locale.
 
+L'option `Afficher les images pendant les exercices` permet de travailler sans
+support visuel illustré. Ce choix est conservé localement dans le navigateur et
+s'applique aux séances suivantes.
+
 ## Technologies
 
 - React 19
@@ -275,6 +281,12 @@ stockée dans le navigateur, sous la clé :
 
 ```text
 alpha-memoire:nathan:progress:v1
+```
+
+Le choix d'affichage des images est également stocké localement, sous la clé :
+
+```text
+alpha-memoire:nathan:show-images:v1
 ```
 
 Pour changer de navigateur ou sauvegarder l'historique, utiliser l'export JSON

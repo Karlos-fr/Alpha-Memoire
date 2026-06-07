@@ -16,7 +16,7 @@ import {
 } from './features/progress/progressEngine'
 import { generateSessionPlan } from './features/session/sessionGenerator'
 import { useSpeech } from './hooks/useSpeech'
-import { CHILD_NAME, INITIAL_ACTIVE_LETTERS } from './lib/appConfig'
+import { CHILD_NAME, INITIAL_ACTIVE_LETTERS, SHOW_IMAGES_STORAGE_KEY } from './lib/appConfig'
 import {
   createInitialProgress,
   ensureStoredProgress,
@@ -121,6 +121,7 @@ function App() {
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null)
   const [parentMessage, setParentMessage] = useState<string | null>(null)
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
+  const [showImages, setShowImages] = useState(() => loadShowImagesPreference())
 
   const currentExercise = sessionPlan?.exercises[currentExerciseIndex] ?? null
   const currentCard = currentExercise ? getLetterCard(currentExercise.letter) : null
@@ -261,6 +262,16 @@ function App() {
     setProgress(nextProgress)
     setSelectedSessionId(null)
     setParentMessage('Progression reinitialisee.')
+  }
+
+  /**
+   * Active ou masque les images des exercices et conserve le choix localement.
+   */
+  function handleShowImagesChange(event: ChangeEvent<HTMLInputElement>) {
+    const nextShowImages = event.target.checked
+
+    setShowImages(nextShowImages)
+    saveShowImagesPreference(nextShowImages)
   }
 
   /**
@@ -489,12 +500,14 @@ function App() {
             <p className="spoken-instruction" aria-live="polite">
               {lastMessage}
             </p>
-            {shouldHideTargetText && currentCard ? (
-              <img
-                className="letter-image-prompt"
-                src={currentCard.image.src}
-                alt={currentCard.image.alt}
-              />
+            {shouldHideTargetText ? (
+              currentCard && showImages ? (
+                <img
+                  className="letter-image-prompt"
+                  src={currentCard.image.src}
+                  alt={currentCard.image.alt}
+                />
+              ) : null
             ) : (currentExercise.type === 'association' ||
                 currentExercise.type === 'naming') &&
               currentCard ? (
@@ -508,11 +521,13 @@ function App() {
                     <span>{currentCard.word}</span>
                   </div>
                 </div>
-                <img
-                  className="letter-association-image"
-                  src={currentCard.image.src}
-                  alt={currentCard.image.alt}
-                />
+                {showImages && (
+                  <img
+                    className="letter-association-image"
+                    src={currentCard.image.src}
+                    alt={currentCard.image.alt}
+                  />
+                )}
               </div>
             ) : (
               <>
@@ -547,6 +562,9 @@ function App() {
             <button type="button" className="primary-action" onClick={startSession}>
               Nouvelle séance
             </button>
+            <button type="button" className="secondary-action" onClick={() => setView('home')}>
+              Accueil
+            </button>
             <button type="button" className="voice-action" onClick={() => speech.speak()}>
               Réécouter
             </button>
@@ -572,7 +590,7 @@ function App() {
             </div>
             <div className="parent-nav">
               <button type="button" className="secondary-action" onClick={() => setView('home')}>
-                Espace enfant
+                Accueil
               </button>
               <button type="button" className="voice-action" onClick={handleExportProgress}>
                 Export JSON
@@ -602,6 +620,18 @@ function App() {
               {parentMessage}
             </p>
           )}
+
+          <section className="parent-section parent-settings" aria-labelledby="settings-title">
+            <h2 id="settings-title">Options</h2>
+            <label className="setting-toggle">
+              <input
+                type="checkbox"
+                checked={showImages}
+                onChange={handleShowImagesChange}
+              />
+              <span>Afficher les images pendant les exercices</span>
+            </label>
+          </section>
 
           <div className="parent-summary">
             <ParentMetric label="Seances" value={progress.sessions.length.toString()} />
@@ -1176,6 +1206,28 @@ function getDebugPrompt(
   }
 
   return `Montre-moi le ${letter}`
+}
+
+/**
+ * Charge le choix local d'affichage des images. Par défaut, les images restent visibles.
+ */
+function loadShowImagesPreference() {
+  if (typeof window === 'undefined') {
+    return true
+  }
+
+  return window.localStorage.getItem(SHOW_IMAGES_STORAGE_KEY) !== 'false'
+}
+
+/**
+ * Sauvegarde le choix local d'affichage des images.
+ */
+function saveShowImagesPreference(showImages: boolean) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.localStorage.setItem(SHOW_IMAGES_STORAGE_KEY, showImages ? 'true' : 'false')
 }
 
 export default App

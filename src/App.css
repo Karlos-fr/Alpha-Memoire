@@ -470,6 +470,26 @@ button:focus-visible {
   font-weight: 800;
 }
 
+.parent-settings {
+  gap: 10px;
+}
+
+.setting-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #31435a;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.setting-toggle input {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  accent-color: #285f73;
+}
+
 .parent-summary,
 .parent-columns {
   display: grid;
