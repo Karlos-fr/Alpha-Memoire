@@ -224,7 +224,7 @@ function App() {
     link.download = `alpha-memoire-${CHILD_NAME.toLowerCase()}-progression.json`
     link.click()
     URL.revokeObjectURL(url)
-    setParentMessage('Export JSON pret.')
+    setParentMessage('Export JSON prêt.')
   }
 
   /**
@@ -241,7 +241,7 @@ function App() {
       const nextProgress = importProgressFromJson(await file.text())
       setProgress(nextProgress)
       setSelectedSessionId(nextProgress.sessions.at(-1)?.id ?? null)
-      setParentMessage('Import JSON termine.')
+      setParentMessage('Import JSON terminé.')
     } catch (error) {
       setParentMessage(error instanceof Error ? error.message : 'Import JSON impossible.')
     } finally {
@@ -253,7 +253,7 @@ function App() {
    * Reinitialise la progression apres confirmation explicite.
    */
   function handleResetProgress() {
-    if (!window.confirm('Reinitialiser toute la progression de Nathan ?')) {
+    if (!window.confirm('Réinitialiser toute la progression de Nathan ?')) {
       return
     }
 
@@ -261,7 +261,7 @@ function App() {
 
     setProgress(nextProgress)
     setSelectedSessionId(null)
-    setParentMessage('Progression reinitialisee.')
+    setParentMessage('Progression réinitialisée.')
   }
 
   /**
@@ -603,7 +603,7 @@ function App() {
                 Import JSON
               </button>
               <button type="button" className="danger-action" onClick={handleResetProgress}>
-                Reinitialiser
+                Réinitialiser
               </button>
               <input
                 ref={importInputRef}
@@ -634,8 +634,8 @@ function App() {
           </section>
 
           <div className="parent-summary">
-            <ParentMetric label="Seances" value={progress.sessions.length.toString()} />
-            <ParentMetric label="Derniere seance" value={formatDate(lastSession?.endedAt)} />
+            <ParentMetric label="Séances" value={progress.sessions.length.toString()} />
+            <ParentMetric label="Dernière séance" value={formatDate(lastSession?.endedAt)} />
             <ParentMetric label="Connues" value={knownLetters.length.toString()} />
             <ParentMetric label="Fragiles" value={fragileLetters.length.toString()} />
           </div>
@@ -667,7 +667,7 @@ function App() {
             <section className="parent-section" aria-labelledby="history-title">
               <h2 id="history-title">Historique</h2>
               {progress.sessions.length === 0 ? (
-                <p className="empty-state">Aucune seance terminee pour le moment.</p>
+                <p className="empty-state">Aucune séance terminée pour le moment.</p>
               ) : (
                 <div className="session-history">
                   {progress.sessions
@@ -682,7 +682,7 @@ function App() {
                         }`}
                         onClick={() => setSelectedSessionId(session.id)}
                       >
-                        <span>Seance {progress.sessions.length - index}</span>
+                        <span>Séance {progress.sessions.length - index}</span>
                         <span>{formatDate(session.endedAt)}</span>
                         <span>
                           {session.exercises.length} ex. / {session.durationSeconds}s
@@ -695,11 +695,11 @@ function App() {
           </div>
 
           <section className="parent-section" aria-labelledby="session-detail-title">
-            <h2 id="session-detail-title">Detail de seance</h2>
+            <h2 id="session-detail-title">Détail de séance</h2>
             {selectedSession ? (
               <SessionDetail session={selectedSession} />
             ) : (
-              <p className="empty-state">Selectionne une seance pour voir le detail.</p>
+              <p className="empty-state">Sélectionne une séance pour voir le détail.</p>
             )}
           </section>
         </section>
@@ -875,7 +875,7 @@ function MissionCompanion({ mood }: { mood: CompanionMood }) {
  * Indicateur synthetique de l'espace parent.
  */
 function ParentMetric({ label, value }: { label: string; value: string }) {
-  const metricClassName = label === 'Derniere seance'
+  const metricClassName = label === 'Dernière séance'
     ? 'parent-metric is-date-metric'
     : 'parent-metric'
 
@@ -935,8 +935,8 @@ function ParentCharts({ sessions }: { sessions: SessionRecord[] }) {
   if (recentSessions.length === 0) {
     return (
       <section className="parent-section parent-charts" aria-labelledby="charts-title">
-        <h2 id="charts-title">Evolution</h2>
-        <p className="empty-state">Aucune donnee de seance pour le moment.</p>
+        <h2 id="charts-title">Évolution</h2>
+        <p className="empty-state">Aucune donnée de séance pour le moment.</p>
       </section>
     )
   }
@@ -948,10 +948,10 @@ function ParentCharts({ sessions }: { sessions: SessionRecord[] }) {
 
   return (
     <section className="parent-section parent-charts" aria-labelledby="charts-title">
-      <h2 id="charts-title">Evolution</h2>
+      <h2 id="charts-title">Évolution</h2>
       <div className="chart-grid">
         <div className="chart-panel">
-          <h3>Resultats par seance</h3>
+          <h3>Résultats par séance</h3>
           <div className="session-bars">
             {recentSessions.map((session, index) => {
               const exerciseCount = Math.max(1, session.exercises.length)
@@ -1029,7 +1029,7 @@ function SessionDetail({ session }: { session: SessionRecord }) {
       <div className="session-detail-summary">
         <span>{formatDate(session.startedAt)}</span>
         <span>{session.durationSeconds}s</span>
-        <span>{session.summary.successes} reussites</span>
+        <span>{session.summary.successes} réussites</span>
         <span>{session.summary.helpedCount} aides</span>
       </div>
       <div className="exercise-detail-list">

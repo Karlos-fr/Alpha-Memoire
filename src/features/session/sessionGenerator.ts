@@ -26,7 +26,7 @@ export interface GenerateSessionPlanOptions {
 }
 
 /**
- * MÃ©moire rÃ©cente utilisÃ©e pour adapter la sÃ©ance suivante.
+ * Mémoire récente utilisée pour adapter la séance suivante.
  */
 interface SessionAdaptationContext {
   now: string

@@ -55,7 +55,7 @@ test('records a completed session with exercise details', async ({ page }) => {
     }
 
     const continueButton = page.getByRole('button', { name: 'Continuer' })
-    const namingButton = page.getByRole('button', { name: 'Il a trouvÃ©' })
+    const namingButton = page.getByRole('button', { name: 'Il a trouvé' })
 
     if (await continueButton.isVisible()) {
       await continueButton.click()
@@ -200,12 +200,12 @@ test('shows parent dashboard with history details and reset action', async ({ pa
   await page.locator('.actions .secondary-action').click()
 
   await expect(page.getByRole('heading', { name: 'Tableau de bord' })).toBeVisible()
-  await expect(page.getByText('Seances', { exact: true })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Evolution' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Resultats par seance' })).toBeVisible()
+  await expect(page.getByText('Séances', { exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Évolution' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Résultats par séance' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Lettres connues' })).toBeVisible()
-  await expect(page.getByText('Seance 1')).toBeVisible()
-  await expect(page.getByText('Detail de seance')).toBeVisible()
+  await expect(page.getByText('Séance 1')).toBeVisible()
+  await expect(page.getByText('Détail de séance')).toBeVisible()
   await expect(page.getByText('360s', { exact: true })).toBeVisible()
   await expect(page.getByText('Connue', { exact: true })).toBeVisible()
   await expect(page.getByText('Apprentissage', { exact: true })).toBeVisible()
@@ -216,7 +216,7 @@ test('shows parent dashboard with history details and reset action', async ({ pa
   page.once('dialog', async (dialog) => {
     await dialog.accept()
   })
-  await page.getByRole('button', { name: 'Reinitialiser' }).click()
-  await expect(page.getByText('Progression reinitialisee.')).toBeVisible()
-  await expect(page.getByText('Aucune seance terminee pour le moment.')).toBeVisible()
+  await page.getByRole('button', { name: 'Réinitialiser' }).click()
+  await expect(page.getByText('Progression réinitialisée.')).toBeVisible()
+  await expect(page.getByText('Aucune séance terminée pour le moment.')).toBeVisible()
 })
